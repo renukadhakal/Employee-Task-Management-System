@@ -8,3 +8,4 @@ class User(AbstractUser):
         EMPLOYEE="employee","Employee"
         
     role=models.CharField(max_length=20,choices=Role_Type.choices,default=Role_Type.EMPLOYEE)
+    image=models.ImageField(upload_to="user/ranks/%Y/%m/%d/", null=True, blank=True)
