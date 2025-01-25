@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>{% if task_form.instance.pk %}Edit Task{% else %}Create Task{% endif %}</h2>
+  <form method="post">
+    {% csrf_token %}
+    <fieldset>
+      <legend>Task Details</legend>
+      {{ task_form.as_p }}
+    </fieldset>
+    
+    <fieldset>
+      <legend>Sub-tasks</legend>
+      {{ subtask_formset.management_form }}
+      <div id="subtask-forms-container">
+          {% for form in subtask_formset %}
+          <div class="subtask-form">
+              {{ form.as_p }}
+              {% if form.instance.pk %}
+                  <label>Delete:</label> {{ form.DELETE }}
+              {% endif %}
+          </div>
+          {% endfor %}
+      </div>
+    </fieldset>
+    
+    <button type="button" id="add-subtask">Add Sub-task</button>
+    <button type="submit">Save</button>
+  </form>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const addSubtaskButton = document.getElementById('add-subtask');
+        const subtaskFormsContainer = document.getElementById('subtask-forms-container');
+        const formsetPrefix = '{{ subtask_formset.prefix }}';
+        const emptyFormTemplate = `{{ subtask_formset.empty_form.as_p|escapejs }}`;
+
+        if (addSubtaskButton && subtaskFormsContainer) {
+            addSubtaskButton.addEventListener('click', () => {
+                const formCount = document.getElementById(`id_${formsetPrefix}-TOTAL_FORMS`);
+                const formIndex = parseInt(formCount.value, 10);
+
+                const newFormHTML = emptyFormTemplate.replace(/__prefix__/g, formIndex);
+                const newFormElement = document.createElement('div');
+                newFormElement.innerHTML = newFormHTML;
+
+                subtaskFormsContainer.appendChild(newFormElement);
+                formCount.value = formIndex + 1;
+            });
+        } else {
+            console.error("Add Sub-task button or container not found.");
+        }
+    });
+  </script>
+{% endblock %}

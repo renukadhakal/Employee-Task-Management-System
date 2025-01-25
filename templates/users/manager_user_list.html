@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+<div><a href="{% url 'account:manager-user-add' %}" class="btn btn-primary">Add Employee</a></div>
+<table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Id</th>
+        <th scope="col">First</th>
+        <th scope="col">Last</th>
+        <th scope="col">username</th>
+      <th scope="col">Role</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for user in users %}
+      <tr>
+        <th scope="row">{{user.id}}</th>
+        <td>{{user.first_name}}</td>
+        <td>{{user.last_name}}</td>
+        <td>{{user.username}}</td>
+        <td>{{user.role}}</td>
+        <td><a href="{% url 'account:manager-user-update' user.id %}" class="btn btn-primary">Update Employee</a></td>
+        <td><a href="{% url 'account:manager-user-delete' user.id %}" class="btn btn-primary">Delete Employee</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock content %}

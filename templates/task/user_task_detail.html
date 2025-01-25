@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block content %}
+   <div class="container mt-5">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h3>Task Details</h3>
+            </div>
+            <div class="card-body">
+                <h4 class="card-title">{{ tasks.title }}</h4>
+                <p class="card-text"><strong>Description:</strong> {{ tasks.description }}</p>
+                <p class="card-text"><strong>Created By:</strong> {{ tasks.created_by }}</p>
+                <p class="card-text"><strong>Assigned To:</strong> {{ tasks.assigned_to }}</p>
+                <p class="card-text"><strong>Status:</strong> <span class="badge bg-info">{{ tasks.status }}</span></p>
+                <p class="card-text"><strong>Due Date:</strong> {{ tasks.due_date }}</p>
+                <p class="card-text"><strong>Created At:</strong> {{ tasks.created_at }}</p>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <h4>Subtasks</h4>
+            {% if sub_task.exists %}
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Title</th>
+                                <th>Description</th>
+                                <th>Status</th>
+                                <th>Due Date</th>
+                                <th>Created At</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for sub in sub_task %}
+                                <tr>
+                                    <td>{{ sub.title }}</td>
+                                    <td>{{ sub.description }}</td>
+                                    <td><span class="badge bg-info">{{ sub.status }}</span></td>
+                                    <td>{{ sub.due_date }}</td>
+                                    <td>{{ sub.created_at }}</td>
+                                    <td><a href="{% url 'task:update_sub_task_status' sub.id %}" class="btn btn-primary btn-sm">Update Status</a> </td>
+
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p>No subtasks available for this task.</p>
+            {% endif %}
+        </div>
+{% endblock %}

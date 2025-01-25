@@ -10,7 +10,7 @@
             font-family: Arial, sans-serif;
         }
         .sidebar {
-            background-color: rgb(75, 113, 152);
+            background-color: rgb(76, 118, 160);
             color: white;
             min-height: 100vh;
         }
@@ -24,7 +24,7 @@
         }
         .sidebar a:hover {
             color: #fff;
-            background-color: rgb(75, 113, 152);
+            background-color: rgb(68, 115, 162);
             border: 4px solid #fff; /* Border color when hovered */
             border-radius: 5px;
         }
@@ -42,6 +42,8 @@
         .sidebar .nav-item {
             margin-bottom: 10px; /* Space between items */
         }
+        
+        
     </style>
 </head>
 <body>
@@ -76,7 +78,13 @@
                 <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-3">
                     <!-- Profile Section -->
                     <div class="profile-section">
-                        <img src="{{request.user.image.url}}" alt="User Image" width="80" height="80">
+                        {% if request.user.image %}
+    <img src="{{ request.user.image.url }}" alt="User Image" width="80" height="80">
+{% else %}
+    <div style="width: 80px; height: 80px; background-color: #ccc; display: flex; justify-content: center; align-items: center; border-radius: 50%; font-size: 24px; color: white;">
+        {{ request.user.username|slice:":1"|upper }}
+    </div>
+{% endif %}
                         <h5>{{request.user.username}}</h5>
                         {% comment %} <h5>{{request.user.role}}</h5> {% endcomment %}
                     </div>
@@ -90,12 +98,12 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="#" class="nav-link align-middle px-0">
+                            <a href="{% url 'account:admin-user-list' %}" class="nav-link align-middle px-0">
                                 <i class="fs-4 bi-house"></i> <span class="ms-1 d-none d-sm-inline">Manage User</span>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="#" class="nav-link align-middle px-0">
+                            <a href="{% url 'task:task_list' %}" class="nav-link align-middle px-0">
                                 <i class="fs-4 bi-house"></i> <span class="ms-1 d-none d-sm-inline">Task Overview</span>
                             </a>
                         </li>
@@ -123,19 +131,19 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="#" class="nav-link align-middle px-0">
+                            <a href="{% url 'account:manager-user-list' %}" class="nav-link align-middle px-0">
                                 <i class="fs-4 bi-house"></i> <span class="ms-1 d-none d-sm-inline">Manage Employee</span>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="#" class="nav-link align-middle px-0">
-                                <i class="fs-4 bi-house"></i> <span class="ms-1 d-none d-sm-inline">Create Task</span>
+                            <a href="{% url 'task:task_list' %}" class="nav-link align-middle px-0">
+                                <i class="fs-4 bi-house"></i> <span class="ms-1 d-none d-sm-inline">Employee Task </span>
                             </a>
                         </li>
                         
                         <li class="nav-item">
-                            <a href="#" class="nav-link align-middle px-0">
-                                <i class="fs-4 bi-house"></i> <span class="ms-1 d-none d-sm-inline">All Tasks</span>
+                            <a href="{% url 'task:user_task_list' %}" class="nav-link align-middle px-0">
+                                <i class="fs-4 bi-house"></i> <span class="ms-1 d-none d-sm-inline">My Task</span>
                             </a>
                         </li>
                         <li class="nav-item">
@@ -155,7 +163,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="#" class="nav-link align-middle px-0">
+                            <a href="{% url 'task:user_task_list' %}" class="nav-link align-middle px-0">
                                 <i class="fs-4 bi-house"></i> <span class="ms-1 d-none d-sm-inline">My Task</span>
                             </a>
                         </li>
@@ -191,7 +199,7 @@
 
             <!-- Content Area -->
             <div class="col py-3">
-                Content area.......
+                {% block content %}{% endblock content %}
             </div>
         </div>
     </div>

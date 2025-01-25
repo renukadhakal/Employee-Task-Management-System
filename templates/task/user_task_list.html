@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Your Tasks</h2>
+  
+  {% if tasks %}
+    <table class="table table-bordered table-striped">
+      <thead class="thead-dark">
+        <tr>
+          <th>#</th>
+          <th>Title</th>
+          <th>Description</th>
+          <th>Due Date</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for task in tasks %}
+          <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ task.title }}</td>
+            <td>{{ task.description }}</td>
+            <td>{{ task.due_date }}</td>
+            <td>{{ task.get_status_display }}</td>
+            <td>
+              <a href="{% url 'task:user_detail_tasks' task.id %}" class="btn btn-warning btn-sm">View</a>
+
+              <a href="{% url 'task:update_task_status' task.id %}" class="btn btn-primary btn-sm">Update Status</a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No tasks available.</p>
+  {% endif %}
+{% endblock %}

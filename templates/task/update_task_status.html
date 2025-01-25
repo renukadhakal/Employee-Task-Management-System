@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Update Task Status for: {{ task.title }}</h2>
+
+  <form method="post">
+    {% csrf_token %}
+    <fieldset>
+      <legend>Task Status</legend>
+      {{ form.as_p }}
+    </fieldset>
+    <button type="submit" class="btn btn-primary">Save</button>
+  </form>
+
+  <a href="{% url 'task:user_task_list' %}" class="btn btn-secondary mt-3">Back to Task List</a>
+{% endblock %} 
