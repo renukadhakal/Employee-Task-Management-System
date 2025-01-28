@@ -140,3 +140,10 @@ def change_password(request):
     else:
         form = CustomPasswordChangeForm(user=request.user)
     return render(request, "account/change_password.html", {"form": form})
+
+
+class UserUpdateView(LoginRequiredMixin, UpdateView):
+    model = User
+    form_class = UserUpdateForm
+    template_name = "users/user_update_form.html"
+    success_url = reverse_lazy("account:home")

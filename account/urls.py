@@ -12,6 +12,7 @@ from .views import (
     delete_user_manager,
     ManagerUserUpdateView,
     change_password,
+    UserUpdateView,
 )
 
 app_name = "account"
@@ -26,6 +27,11 @@ urlpatterns = [
         "admin-user-update/<int:pk>/",
         AdminUserUpdateView.as_view(),
         name="admin-user-update",
+    ),
+    path(
+        "user-update/<int:pk>/",
+        UserUpdateView.as_view(),
+        name="user-update",
     ),
     path("admin-user-delete/<int:id>/", delete_user_admin, name="admin-user-delete"),
     path("manager-user-list", ManagerUserListView.as_view(), name="manager-user-list"),

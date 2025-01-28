@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "account",
     "task",
+    "notification",
 ]
 
 MIDDLEWARE = [
@@ -64,6 +65,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "notification.context_processors.notifications",
             ],
         },
     },
@@ -80,7 +82,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.mysql",
         "NAME": "ETMS",
         "USER": "root",
-        "PASSWORD": "Faxxx11gen@#",
+        "PASSWORD": "yamagod123a@",
         "HOST": "localhost",
         "PORT": 3306,
     }
