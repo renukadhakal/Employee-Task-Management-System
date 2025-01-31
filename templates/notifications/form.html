@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<h1>{{ form.instance.pk|yesno:"Update,Create" }} Notification</h1>
+<form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Save</button>
+</form>
+<a href="{% url 'notification:notification_list' %}">Back to list</a>
+{% endblock content %}

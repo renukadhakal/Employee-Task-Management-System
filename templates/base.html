@@ -158,6 +158,11 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a href="{% url 'notification:notification_list' %}" class="nav-link align-middle px-0">
+                                <i class="fs-4 bi-house"></i> <span class="ms-1 d-none d-sm-inline">Notification</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a href="{% url 'account:user-update' request.user.id %}" class="nav-link align-middle px-0">
                                 <i class="fs-4 bi-house"></i> <span class="ms-1 d-none d-sm-inline">Setting</span>
                             </a>
