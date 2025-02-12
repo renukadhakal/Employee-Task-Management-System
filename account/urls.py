@@ -13,6 +13,7 @@ from .views import (
     ManagerUserUpdateView,
     change_password,
     UserUpdateView,
+    transfer_employee,
 )
 
 app_name = "account"
@@ -45,4 +46,5 @@ urlpatterns = [
         "manager-user-delete/<int:id>/", delete_user_manager, name="manager-user-delete"
     ),
     path("change_password", change_password, name="change_password"),
+    path("transfer-employee/", transfer_employee, name="transfer_employee"),
 ]

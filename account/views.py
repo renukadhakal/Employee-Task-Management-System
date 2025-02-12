@@ -4,11 +4,17 @@ from django.contrib import messages
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
-from .forms import UserCreationForm, UserUpdateForm, CustomPasswordChangeForm
+from .forms import (
+    UserCreationForm,
+    UserUpdateForm,
+    CustomPasswordChangeForm,
+    EmployeeTransferForm,
+)
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import User
 from django.urls import reverse_lazy
 from .services.send_registration_mail import send_registration_email
+from task.models import Task
 
 
 # Create your views here.
@@ -147,3 +153,31 @@ class UserUpdateView(LoginRequiredMixin, UpdateView):
     form_class = UserUpdateForm
     template_name = "users/user_update_form.html"
     success_url = reverse_lazy("account:home")
+
+
+@login_required(login_url="/login")
+def transfer_employee(request):
+    if request.method == "POST":
+        form = EmployeeTransferForm(request.POST)
+        if form.is_valid():
+            employee = form.cleaned_data["employee"]
+            new_manager = form.cleaned_data["new_manager"]
+
+            old_manager = employee.report_to
+
+            employee.report_to = new_manager
+            employee.save()
+
+            Task.objects.filter(created_by=employee, assigned_to=employee).update(
+                created_by=new_manager
+            )
+
+            messages.success(
+                request,
+                f"{employee.username} has been transferred from {old_manager} to {new_manager}, and tasks have been updated.",
+            )
+            return redirect("account:transfer_employee")
+    else:
+        form = EmployeeTransferForm()
+
+    return render(request, "account/transfer_employee.html", {"form": form})

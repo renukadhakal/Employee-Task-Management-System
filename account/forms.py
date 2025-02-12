@@ -78,6 +78,16 @@ class UserCreationForm(UserCreationForm):
         if commit:
             user.save()  # Commit to DB
         return user
+    
+class EmployeeTransferForm(forms.Form):
+        employee = forms.ModelChoiceField(
+        queryset=User.objects.filter(role=User.Role_Type.EMPLOYEE),
+        label="Select Employee",
+    )
+        new_manager = forms.ModelChoiceField(
+        queryset=User.objects.filter(role=User.Role_Type.MANAGER),
+        label="Select New Manager",
+    )
 
 
 class UserUpdateForm(forms.ModelForm):
