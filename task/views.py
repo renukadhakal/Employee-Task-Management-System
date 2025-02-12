@@ -41,6 +41,13 @@ def list_tasks(request):
 
 
 @login_required(login_url="/login")
+def manager_list_tasks(request):
+    user = request.user
+    tasks = Task.objects.filter(assigned_to__report_to=user).order_by("-due_date")
+    return render(request, "task/task_list.html", {"tasks": tasks})
+
+
+@login_required(login_url="/login")
 def delete_task(request, task_id):
     task = get_object_or_404(Task, id=task_id, created_by=request.user)
 

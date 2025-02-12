@@ -7,7 +7,9 @@ from .views import (
     update_task_status,
     user_detail_tasks,
     update_sub_task_status,
+    manager_list_tasks,
 )
+
 
 app_name = "task"
 
@@ -27,5 +29,8 @@ urlpatterns = [
         "sub_task/update-status/<int:task_id>/",
         update_sub_task_status,
         name="update_sub_task_status",
+    ),
+    path(
+        "manager/employee/tasks/", manager_list_tasks, name="manager_employee_task_list"
     ),
 ]
