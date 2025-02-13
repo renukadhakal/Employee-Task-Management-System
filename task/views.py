@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from .models import Task, SubTask
 from .forms import TaskForm, SubTaskFormSet, TaskStatusForm, SubTaskStatusForm
+from account.models import User
 
 
 @login_required(login_url="/login")
@@ -12,7 +13,15 @@ def create_or_edit_task(request, task_id=None):
         task = Task(created_by=request.user)
 
     if request.method == "POST":
-        task_form = TaskForm(request.POST, instance=task)
+        if request.user.is_superuser:
+            assigned_to_list = User.objects.all()
+        else:
+            assigned_to_list = User.objects.filter(
+                report_to=request.user, role=User.Role_Type.EMPLOYEE
+            )
+        task_form = TaskForm(
+            request.POST, instance=task, assigned_to_list=assigned_to_list
+        )
         subtask_formset = SubTaskFormSet(request.POST, instance=task)
 
         if task_form.is_valid() and subtask_formset.is_valid():
@@ -21,13 +30,20 @@ def create_or_edit_task(request, task_id=None):
             return redirect("task:task_list")  # Redirect to task detail or task list
 
     else:
-        task_form = TaskForm(instance=task)
+        if request.user.is_superuser:
+            assigned_to_list = User.objects.all()
+        else:
+            assigned_to_list = User.objects.filter(
+                report_to=request.user, role=User.Role_Type.EMPLOYEE
+            )
+        task_form = TaskForm(instance=task, assigned_to_list=assigned_to_list)
         subtask_formset = SubTaskFormSet(instance=task)
 
     return render(
         request,
         "task/task_form.html",
         {
+            "assigned_to_list": assigned_to_list,
             "task_form": task_form,
             "subtask_formset": subtask_formset,
         },

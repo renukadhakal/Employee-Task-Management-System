@@ -10,6 +10,10 @@ class Task(models.Model):
         ("COMPLETED", "Completed"),
         ("ON_HOLD", "On Hold"),
     ]
+    PRIORITY = [
+        ("HIGH", "High"),
+        ("LOW", "Low"),
+    ]
 
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
@@ -20,6 +24,7 @@ class Task(models.Model):
     completed = models.BooleanField(
         default=False
     )  # Optional, since status can also indicate completion
+    priority = models.CharField(max_length=20, choices=PRIORITY, default="LOW")
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="PENDING")
 
     def __str__(self):
@@ -39,7 +44,7 @@ class SubTask(models.Model):
     description = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     due_date = models.DateField(blank=True, null=True)
-    completed = models.BooleanField(default=False)  
+    completed = models.BooleanField(default=False)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="PENDING")
 
     def __str__(self):

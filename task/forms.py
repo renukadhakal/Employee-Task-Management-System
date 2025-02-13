@@ -4,22 +4,40 @@ from .models import Task, SubTask, User
 
 
 class TaskForm(forms.ModelForm):
+
+    due_date = forms.DateField(widget=forms.DateInput(attrs={"type": "date"}))
+
     class Meta:
         model = Task
-        fields = ["title", "description", "due_date", "status", "assigned_to"]
+        fields = [
+            "title",
+            "description",
+            "due_date",
+            "status",
+            "assigned_to",
+            "priority",
+        ]
+        widgets = {"due_date": forms.DateInput(attrs={"type": "date"})}
+
+    assigned_to = forms.ModelChoiceField(
+        queryset=User.objects.none(),  # Placeholder, will be updated in the view
+        widget=forms.Select(attrs={"class": "form-control"}),
+        required=True,
+    )
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop("user", None)  # Get the logged-in user from kwargs
+        assigned_to_list = kwargs.pop(
+            "assigned_to_list", None
+        )  # Get the assigned_to_list from kwargs
+
         super().__init__(*args, **kwargs)
 
-        if user:
-            if user.role == User.Role_Type.ADMIN:
-                self.fields["assigned_to"].queryset = User.objects.all()
-            elif user.role == User.Role_Type.MANAGER:
-                self.fields["assigned_to"].queryset = User.objects.filter(
-                    report_to=user
-                )
+        # If assigned_to_list is provided, set the queryset for the 'assigned_to' field
+        if assigned_to_list is not None:
+            self.fields["assigned_to"].queryset = assigned_to_list
 
+        # Update the widget for all fields to add form-control class
         for field in self.fields.values():
             field.widget.attrs.update({"class": "form-control"})
 
