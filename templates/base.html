@@ -324,6 +324,12 @@
                 </a>
               </li>
               <li class="nav-item">
+                <a href="{% url 'leave:manager_leave_requests' %}" class="nav-link align-middle px-0">
+                  <i class="fs-4 bi-house"></i>
+                  <span class="ms-1 d-none d-sm-inline">Leave Request </span>
+                </a>
+              </li>
+              <li class="nav-item">
                 <a href="#" class="nav-link align-middle px-0">
                   <i class="fs-4 bi-house"></i>
                   <span class="ms-1 d-none d-sm-inline">Report</span>
@@ -362,7 +368,7 @@
               </li>
 
               <li class="nav-item">
-                <a href="#" class="nav-link align-middle px-0">
+                <a href="{% url 'leave:leave_request_list' %}" class="nav-link align-middle px-0">
                   <i class="fs-4 bi-house"></i>
                   <span class="ms-1 d-none d-sm-inline">Leave Request </span>
                 </a>

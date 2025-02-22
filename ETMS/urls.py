@@ -25,6 +25,7 @@ urlpatterns = [
     path("", include("account.urls")),
     path("", include("task.urls")),
     path("", include("notification.urls")),
+    path("", include("leave.urls")),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

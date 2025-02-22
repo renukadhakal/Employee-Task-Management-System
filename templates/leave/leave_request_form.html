@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-sm p-4">
+        <h2 class="mb-3 text-center">Apply for Leave</h2>
+        <form method="post" class="needs-validation" novalidate>
+            {% csrf_token %}
+            <div class="mb-3">
+                {{ form.reason.label_tag }}
+                {{ form.reason }}
+            </div>
+            <div class="mb-3">
+                {{ form.start_at.label_tag }}
+                {{ form.start_at }}
+            </div>
+            <div class="mb-3">
+                {{ form.end_at.label_tag }}
+                {{ form.end_at }}
+            </div>
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary">Submit</button>
+                <a href="{% url 'leave:leave_request_list' %}" class="btn btn-secondary">Back to List</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

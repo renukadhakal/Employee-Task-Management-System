@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">Your Leave Requests</h2>
+        <p>You have <strong>{{ remaining_leave }}</strong> leave requests remaining.</p>
+        <a href="{% url 'leave:leave_request_create' %}" class="btn btn-primary {% if remaining_leave == 0 %}disabled{% endif %}">Apply for Leave</a>
+    </div>
+    
+    {% if leave_requests %}
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered shadow-sm">
+                <thead class="table-dark text-center">
+                    <tr>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Reason</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="text-center align-middle">
+                    {% for leave in leave_requests %}
+                    <tr>
+                        <td>{{ leave.start_at.date }}</td>
+                        <td>{{ leave.end_at.date }}</td>
+                        <td>{{ leave.reason }}</td>
+                        <td>
+                           <span class="badge 
+                                {% if leave.status == 'pending' %} bg-warning text-dark
+                                {% elif leave.status == 'approved' %} bg-success
+                                {% else %} bg-danger {% endif %}">
+                                {{ leave.status|title }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="d-flex justify-content-center gap-2">
+                                <a href="{% url 'leave:leave_request_edit' leave.pk %}" class="btn btn-warning btn-sm">Edit</a>
+                                <form method="post" action="{% url 'leave:leave_request_delete' leave.pk %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this request?');">Delete</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="alert alert-info text-center" role="alert">
+            No leave requests found.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

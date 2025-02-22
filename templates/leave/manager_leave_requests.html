@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">Leave Requests of Your Employees</h2>
+        <a href="{% url 'leave:leave_request_list' %}" class="btn btn-secondary">Back to My Requests</a>
+    </div>
+
+    {% if leave_requests %}
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered shadow-sm">
+                <thead class="table-dark text-center">
+                    <tr>
+                        <th>Employee</th>
+                        <th>Reason</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Applied On</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody class="text-center align-middle">
+                    {% for leave in leave_requests %}
+                    <tr>
+                        <td>{{ leave.user.username }}</td>
+                        <td>{{ leave.reason }}</td>
+                        <td>{{ leave.start_at.date }}</td>
+                        <td>{{ leave.end_at.date }}</td>
+                        <td>{{ leave.applied_at }}</td>
+                        <td>
+                            <span class="badge 
+                                {% if leave.status == 'pending' %} bg-warning text-dark
+                                {% elif leave.status == 'approved' %} bg-success
+                                {% else %} bg-danger {% endif %}">
+                                {{ leave.status|title }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if leave.status == "pending" %}
+                                <a href="{% url 'leave:approve_leave_request' leave.pk %}" class="btn btn-success btn-sm">Approve</a>
+                                <a href="{% url 'leave:reject_leave_request' leave.pk %}" class="btn btn-danger btn-sm">Reject</a>
+                            {% else %}
+                                <em>{{ leave.status|title }}</em>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="alert alert-info text-center" role="alert">
+            No leave requests available.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
