@@ -3,6 +3,15 @@
 <div class="container mt-4">
     <div class="card shadow-sm p-4">
         <h2 class="mb-3 text-center">Apply for Leave</h2>
+        {% if messages %}
+            <div class="alert alert-dismissible fade show">
+                {% for message in messages %}
+                    <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-success{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
         <form method="post" class="needs-validation" novalidate>
             {% csrf_token %}
             <div class="mb-3">

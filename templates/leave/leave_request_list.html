@@ -7,7 +7,15 @@
         <p>You have <strong>{{ remaining_leave }}</strong> leave requests remaining.</p>
         <a href="{% url 'leave:leave_request_create' %}" class="btn btn-primary {% if remaining_leave == 0 %}disabled{% endif %}">Apply for Leave</a>
     </div>
-    
+     {% if messages %}
+            <div class="alert alert-dismissible fade show">
+                {% for message in messages %}
+                    <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-success{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
     {% if leave_requests %}
         <div class="table-responsive">
             <table class="table table-hover table-bordered shadow-sm">

@@ -5,6 +5,7 @@ from .models import LeaveRequest, Leave
 from .forms import LeaveRequestForm
 from notification.models import Notification
 from account.models import User
+from django.contrib import messages
 
 
 @login_required(login_url="/login")
@@ -29,16 +30,30 @@ def leave_request_create(request):
             leave_request = form.save(commit=False)
             leave_request.user = request.user
             leave_request.applied_at = now()
-            leave_request.save()
-            Notification.objects.create(
-                title="Leave request",
-                message=f"{request.user.username} has requested a leave.",
-                user=request.user.report_to,
-            )
-            return redirect("leave:leave_request_list")
+
+            requested_days = (leave_request.end_at - leave_request.start_at).days + 1
+
+            leave = Leave.objects.get(user=request.user)
+
+            if requested_days > leave.total:
+                messages.error(
+                    request, "You cannot request more leave days than available."
+                )
+            else:
+                leave_request.save()
+                if request.user.report_to:
+                    Notification.objects.create(
+                        title="Leave request",
+                        message=f"{request.user.username} has requested {requested_days} days of leave.",
+                        user=request.user.report_to,
+                    )
+
+                messages.success(request, "Leave request submitted successfully.")
+                return redirect("leave:leave_request_list")
 
     else:
         form = LeaveRequestForm()
+
     return render(request, "leave/leave_request_form.html", {"form": form})
 
 
@@ -90,17 +105,34 @@ def manager_leave_requests(request):
 def approve_leave_request(request, pk):
     leave_request = get_object_or_404(LeaveRequest, pk=pk, user__report_to=request.user)
 
+    if leave_request.status != LeaveRequest.Leave_Types.PENDING:
+        messages.error(request, "This leave request has already been processed.")
+        return redirect("leave:manager_leave_requests")
+
+    requested_days = (leave_request.end_at - leave_request.start_at).days + 1
+
+    leave = Leave.objects.get(user=leave_request.user)
+
+    if requested_days > leave.total:
+        messages.error(
+            request, "Cannot approve leave request. Not enough leave balance."
+        )
+        return redirect("leave:manager_leave_requests")
+
     leave_request.status = LeaveRequest.Leave_Types.APPROVED
     leave_request.approved_by = request.user
     leave_request.save()
+
+    leave.total -= requested_days
+    leave.save()
+
     Notification.objects.create(
         title="Leave request",
-        message="Your Leave have been approved",
+        message="Your leave has been approved.",
         user=leave_request.user,
     )
-    leave = Leave.objects.get(user=leave_request.user)
-    leave.total = leave.total - 1
-    leave.save()
+
+    messages.success(request, "Leave request approved successfully.")
     return redirect("leave:manager_leave_requests")
 
 
