@@ -1,8 +1,9 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
-from .models import Task, SubTask
+from .models import Task, SubTask, TimeLog
 from .forms import TaskForm, SubTaskFormSet, TaskStatusForm, SubTaskStatusForm
 from account.models import User
+from django.utils import timezone
 
 
 @login_required(login_url="/login")
@@ -95,7 +96,18 @@ def update_task_status(request, task_id):
         form = TaskStatusForm(request.POST, instance=task)
         if form.is_valid():
             form.save()
-            return redirect("task:user_task_list")  # Redirect back to the task list
+            if request.user.Role_Type.EMPLOYEE:
+                if task.status == "IN_PROGRESS":
+                    log, created = TimeLog.objects.get_or_create(
+                        user=request.user, task=task
+                    )
+                    log.start_time = timezone.now()
+                    log.save()
+                if task.status == "COMPLETED":
+                    log = TimeLog.objects.get(user=request.user, task=task)
+                    log.end_time = timezone.now()
+                    log.save()
+            return redirect("task:user_task_list")
     else:
         form = TaskStatusForm(instance=task)
 
@@ -110,8 +122,37 @@ def update_sub_task_status(request, task_id):
         form = SubTaskStatusForm(request.POST, instance=task)
         if form.is_valid():
             form.save()
+            if request.user.Role_Type.EMPLOYEE:
+                if task.status == "IN_PROGRESS":
+                    log, created = TimeLog.objects.get_or_create(
+                        user=request.user, sub_task=task
+                    )
+                    log.start_time = timezone.now()
+                    log.save()
+                if task.status == "COMPLETED":
+                    log = TimeLog.objects.get(user=request.user, sub_task=task)
+                    log.end_time = timezone.now()
+                    log.save()
             return redirect("task:user_task_list")  # Redirect back to the task list
     else:
         form = TaskStatusForm(instance=task)
-
     return render(request, "task/update_task_status.html", {"form": form, "task": task})
+
+
+@login_required(login_url="/login")
+def time_log_list(request):
+
+    user = request.user
+    if user.role == User.Role_Type.ADMIN:
+        logs = TimeLog.objects.all().order_by("-task__due_date")
+    elif user.role == User.Role_Type.MANAGER:
+        logs = TimeLog.objects.filter(task__created_by=user).order_by("-task__due_date")
+    else:
+        logs = TimeLog.objects.filter(user=user).order_by("-task__due_date")
+
+    if request.GET.get("start_date") and request.GET.get("end_date"):
+        start_date = request.GET.get("start_date")
+        end_date = request.GET.get("end_date")
+        logs = TimeLog.objects.filter(start_time__range=[start_date, end_date])
+
+    return render(request, "timelog/log_list.html", {"logs": logs})

@@ -8,6 +8,7 @@ from .views import (
     user_detail_tasks,
     update_sub_task_status,
     manager_list_tasks,
+    time_log_list,
 )
 
 
@@ -33,4 +34,5 @@ urlpatterns = [
     path(
         "manager/employee/tasks/", manager_list_tasks, name="manager_employee_task_list"
     ),
+    path("time-logs/", time_log_list, name="time_log_list"),
 ]
