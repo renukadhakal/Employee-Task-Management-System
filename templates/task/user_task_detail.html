@@ -1,4 +1,5 @@
-{% extends 'base.html' %} {% block content %}
+{% extends 'base.html' %}
+{% block content %}
 <div class="container mt-5">
   <div class="card">
     <div class="card-header bg-primary text-white">
@@ -6,30 +7,33 @@
     </div>
     <div class="card-body">
       <h4 class="card-title">{{ tasks.title }}</h4>
-      <p class="card-text">
-        <strong>Description:</strong> {{ tasks.description }}
-      </p>
-      <p class="card-text">
-        <strong>Created By:</strong> {{ tasks.created_by }}
-      </p>
-      <p class="card-text">
-        <strong>Assigned To:</strong> {{ tasks.assigned_to }}
-      </p>
+      <p class="card-text"><strong>Description:</strong> {{ tasks.description }}</p>
+      <p class="card-text"><strong>Created By:</strong> {{ tasks.created_by }}</p>
+      <p class="card-text"><strong>Assigned To:</strong> {{ tasks.assigned_to }}</p>
       <p class="card-text">
         <strong>Priority:</strong>
-        <span
-          class="badge {% if tasks.priority == 'HIGH'%} bg-danger {% else %} bg-warning {% endif %}"
-          >{{ tasks.priority }}</span
-        >
+        <span class="badge {% if tasks.priority == 'HIGH'%} bg-danger {% else %} bg-warning {% endif %}">{{ tasks.priority }}</span>
       </p>
-      <p class="card-text">
-        <strong>Status:</strong>
-        <span class="badge bg-info">{{ tasks.status }}</span>
-      </p>
+      <p class="card-text"><strong>Status:</strong> <span class="badge bg-info">{{ tasks.status }}</span></p>
       <p class="card-text"><strong>Due Date:</strong> {{ tasks.due_date }}</p>
-      <p class="card-text">
-        <strong>Created At:</strong> {{ tasks.created_at }}
-      </p>
+      <p class="card-text"><strong>Created At:</strong> {{ tasks.created_at }}</p>
+
+      {% if tasks.file %}
+      <p><strong>Attached File:</strong></p>
+      {% if tasks.file.url|lower|slice:"-4:" == ".jpg" or tasks.file.url|lower|slice:"-4:" == ".png" %}
+      <img src="{{ tasks.file.url }}" alt="Task Image" class="img-fluid" style="max-width: 300px;">
+      {% else %}
+      <a href="{{ tasks.file.url }}" download class="btn btn-secondary">Download File</a>
+      {% endif %}
+      {% endif %}
+      {% if tasks.task_upload_file %}
+      <p><strong>Task Uploaded File:</strong></p>
+      {% if tasks.task_upload_file.url|lower|slice:"-4:" == ".jpg" or tasks.task_upload_file.url|lower|slice:"-4:" == ".png" %}
+      <img src="{{ tasks.task_upload_file.url }}" alt="Task Image" class="img-fluid" style="max-width: 300px;">
+      {% else %}
+      <a href="{{ tasks.task_upload_file.url }}" download class="btn btn-secondary">Download File</a>
+      {% endif %}
+      {% endif %}
     </div>
   </div>
 
@@ -44,6 +48,8 @@
             <th>Description</th>
             <th>Status</th>
             <th>Due Date</th>
+            <th>File</th>
+            <th>Task Uploaded File</th>
             <th>Created At</th>
           </tr>
         </thead>
@@ -54,13 +60,31 @@
             <td>{{ sub.description }}</td>
             <td><span class="badge bg-info">{{ sub.status }}</span></td>
             <td>{{ sub.due_date }}</td>
+            <td>
+              {% if sub.file %}
+                {% if sub.file.url|lower|slice:"-4:" == ".jpg" or sub.file.url|lower|slice:"-4:" == ".png" %}
+                  <img src="{{ sub.file.url }}" alt="Subtask Image" class="img-fluid" style="max-width: 100px;">
+                {% else %}
+                  <a href="{{ sub.file.url }}" download class="btn btn-secondary btn-sm">Download File</a>
+                {% endif %}
+              {% else %}
+                No file attached
+              {% endif %}
+            </td>
+            <td>
+              {% if sub.task_upload_file %}
+                {% if sub.task_upload_file.url|lower|slice:"-4:" == ".jpg" or sub.task_upload_file.url|lower|slice:"-4:" == ".png" %}
+                  <img src="{{ sub.task_upload_file.url }}" alt="Subtask Image" class="img-fluid" style="max-width: 100px;">
+                {% else %}
+                  <a href="{{ sub.task_upload_file.url }}" download class="btn btn-secondary btn-sm">Download File</a>
+                {% endif %}
+              {% else %}
+                No file attached
+              {% endif %}
+            </td>
             <td>{{ sub.created_at }}</td>
             <td>
-              <a
-                href="{% url 'task:update_sub_task_status' sub.id %}"
-                class="btn btn-primary btn-sm"
-                >Update Status</a
-              >
+              <a href="{% url 'task:update_sub_task_status' sub.id %}" class="btn btn-primary btn-sm">Update Status</a>
             </td>
           </tr>
           {% endfor %}
@@ -71,5 +95,5 @@
     <p>No subtasks available for this task.</p>
     {% endif %}
   </div>
-  {% endblock %}
+{% endblock %}
 </div>

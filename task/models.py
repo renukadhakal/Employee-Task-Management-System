@@ -11,19 +11,25 @@ class Task(models.Model):
         ("COMPLETED", "Completed"),
         ("ON_HOLD", "On Hold"),
     ]
-    PRIORITY = [("HIGH", "High"), ("LOW", "Low"), ("MEDIUM", "Medium")]
+    PRIORITY = [
+        ("HIGH", "High"),
+        ("LOW", "Low"),
+        ("MEDIUM", "Medium")
+    ]
 
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="tasks")
     assigned_to = models.ForeignKey(User, on_delete=models.CASCADE, null=2)
     created_at = models.DateTimeField(auto_now_add=True)
-    due_date = models.DateTimeField(blank=True, null=True)
+    due_date = models.DateField(blank=True, null=True)
     completed = models.BooleanField(
         default=False
     )  # Optional, since status can also indicate completion
     priority = models.CharField(max_length=20, choices=PRIORITY, default="LOW")
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="PENDING")
+    file = models.FileField(upload_to="task/", null=True, blank=True)
+    task_upload_file = models.FileField(upload_to="task/", null=True, blank=True)
 
     def __str__(self):
         return self.title
@@ -44,6 +50,8 @@ class SubTask(models.Model):
     due_date = models.DateField(blank=True, null=True)
     completed = models.BooleanField(default=False)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="PENDING")
+    file = models.FileField(upload_to="sub_task/", null=True, blank=True)
+    task_upload_file = models.FileField(upload_to="sub_task/", null=True, blank=True)
 
     def __str__(self):
         return f"{self.title} (Sub-task of {self.task.title})"

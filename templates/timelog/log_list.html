@@ -34,36 +34,36 @@
         </tr>
       </thead>
       <tbody>
-        {% if logs %}
-          {% for timelog in logs %}
-            <tr>
-              {% if timelog.task %}
+       {% if logs %}
+    {% for timelog in logs %}
+        <tr>
+            {% if timelog.task %}
                 <td>{{ forloop.counter }}</td>
                 <td>{{ timelog.task.title|default_if_none:"-" }}</td>
                 <td>{{ timelog.start_time|date:"Y-m-d H:i:s"|default_if_none:"-" }}</td>
                 <td>{{ timelog.end_time|date:"Y-m-d H:i:s"|default_if_none:"-" }}</td>
-                <td>{{ timelog.task.due_date|date:"Y-m-d H:i:s" | default_if_none:"-" }}</td>
+                <td>{{ timelog.task.due_date|date:"Y-m-d" | default_if_none:"-" }}</td>  <!-- Fixed -->
                 <td>{{ timelog.task.status|default_if_none:"-" }}</td>
-                <td>{{timelog.get_total_time}}</td>
-
-              {% else %}
+                <td>{{ timelog.get_total_time }}</td>
+            {% else %}
                 <td>{{ forloop.counter }}</td>
                 <td>{{ timelog.sub_task.title|default_if_none:"-" }}</td>
                 <td>{{ timelog.start_time|date:"Y-m-d H:i:s"|default_if_none:"-" }}</td>
                 <td>{{ timelog.end_time|date:"Y-m-d H:i:s"|default_if_none:"-" }}</td>
-                <td>{{ timelog.sub_task.task.due_date|date:"Y-m-d H:i:s"|default_if_none:"-" }}</td>
+                <td>{{ timelog.sub_task.task.due_date|date:"Y-m-d"|default_if_none:"-" }}</td>  <!-- Fixed -->
                 <td>{{ timelog.sub_task.status|default_if_none:"-" }}</td>
-                <td>{{timelog.get_total_time}}</td>
-              {% endif %}
-                
-              </td>
-            </tr>
-            {% endfor %}
-          {% else %}
-          <td colspan="7" style="align-items: center;">
-            <p >No Logs available.</p>
-          </td>
-        {% endif %}
+                <td>{{ timelog.get_total_time }}</td>
+            {% endif %}
+        </tr>
+    {% endfor %}
+{% else %}
+    <tr>
+        <td colspan="7" style="text-align: center;">
+            <p>No Logs available.</p>
+        </td>
+    </tr>
+{% endif %}
+
         </tbody>
       </table>
 

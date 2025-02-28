@@ -13,6 +13,7 @@
           <th>Due Date</th>
           <th>Status</th>
           <th>Assigned to</th>
+          <th>File</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -25,6 +26,28 @@
             <td>{{ task.due_date }}</td>
             <td>{{ task.get_status_display }}</td>
             <td>{{ task.assigned_to}}</td>
+            <td>
+              {% if task.file %}
+                {% if task.file.url|lower|slice:"-4:" == ".jpg" or task.file.url|lower|slice:"-4:" == ".png" %}
+                  <img src="{{ task.file.url }}" alt="tasktask Image" class="img-fluid" style="max-width: 100px;">
+                {% else %}
+                  <a href="{{ task.file.url }}" download class="btn btn-secondary btn-sm">Download File</a>
+                {% endif %}
+              {% else %}
+                No file attached
+              {% endif %}
+            </td>
+            <td>
+              {% if task.task_upload_file %}
+                {% if task.task_upload_file.url|lower|slice:"-4:" == ".jpg" or task.task_upload_file.url|lower|slice:"-4:" == ".png" %}
+                  <img src="{{ task.task_upload_file.url }}" alt="tasktask Image" class="img-fluid" style="max-width: 100px;">
+                {% else %}
+                  <a href="{{ task.task_upload_file.url }}" download class="btn btn-secondary btn-sm">Download File</a>
+                {% endif %}
+              {% else %}
+                No file attached
+              {% endif %}
+            </td>
             <td>
               <a href="{% url 'task:edit_task' task.id %}" class="btn btn-primary btn-sm">Edit</a>
               <a href="{% url 'task:delete_task' task.id %}" class="btn btn-danger btn-sm" 

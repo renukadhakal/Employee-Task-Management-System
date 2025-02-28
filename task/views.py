@@ -3,7 +3,6 @@ from django.contrib.auth.decorators import login_required
 from .models import Task, SubTask, TimeLog
 from .forms import TaskForm, SubTaskFormSet, TaskStatusForm, SubTaskStatusForm
 from account.models import User
-from django.utils import timezone
 
 
 @login_required(login_url="/login")
@@ -20,10 +19,15 @@ def create_or_edit_task(request, task_id=None):
             assigned_to_list = User.objects.filter(
                 report_to=request.user, role=User.Role_Type.EMPLOYEE
             )
+
+        # Include request.FILES for file uploads
         task_form = TaskForm(
-            request.POST, instance=task, assigned_to_list=assigned_to_list
+            request.POST,
+            request.FILES,
+            instance=task,
+            assigned_to_list=assigned_to_list,
         )
-        subtask_formset = SubTaskFormSet(request.POST, instance=task)
+        subtask_formset = SubTaskFormSet(request.POST, request.FILES, instance=task)
 
         if task_form.is_valid() and subtask_formset.is_valid():
             task = task_form.save()
@@ -93,21 +97,10 @@ def update_task_status(request, task_id):
     task = get_object_or_404(Task, id=task_id, assigned_to=request.user)
 
     if request.method == "POST":
-        form = TaskStatusForm(request.POST, instance=task)
+        form = TaskStatusForm(request.POST, request.FILES, instance=task)
         if form.is_valid():
             form.save()
-            if request.user.Role_Type.EMPLOYEE:
-                if task.status == "IN_PROGRESS":
-                    log, created = TimeLog.objects.get_or_create(
-                        user=request.user, task=task
-                    )
-                    log.start_time = timezone.now()
-                    log.save()
-                if task.status == "COMPLETED":
-                    log = TimeLog.objects.get(user=request.user, task=task)
-                    log.end_time = timezone.now()
-                    log.save()
-            return redirect("task:user_task_list")
+            return redirect("task:user_task_list")  # Redirect back to the task list
     else:
         form = TaskStatusForm(instance=task)
 
@@ -116,27 +109,19 @@ def update_task_status(request, task_id):
 
 @login_required(login_url="/login")
 def update_sub_task_status(request, task_id):
-    task = get_object_or_404(SubTask, id=task_id)
+    subtask = get_object_or_404(SubTask, id=task_id)
 
     if request.method == "POST":
-        form = SubTaskStatusForm(request.POST, instance=task)
+        form = SubTaskStatusForm(request.POST, request.FILES, instance=subtask)
         if form.is_valid():
             form.save()
-            if request.user.Role_Type.EMPLOYEE:
-                if task.status == "IN_PROGRESS":
-                    log, created = TimeLog.objects.get_or_create(
-                        user=request.user, sub_task=task
-                    )
-                    log.start_time = timezone.now()
-                    log.save()
-                if task.status == "COMPLETED":
-                    log = TimeLog.objects.get(user=request.user, sub_task=task)
-                    log.end_time = timezone.now()
-                    log.save()
             return redirect("task:user_task_list")  # Redirect back to the task list
     else:
-        form = TaskStatusForm(instance=task)
-    return render(request, "task/update_task_status.html", {"form": form, "task": task})
+        form = SubTaskStatusForm(instance=subtask)
+
+    return render(
+        request, "task/update_task_status.html", {"form": form, "task": subtask}
+    )
 
 
 @login_required(login_url="/login")

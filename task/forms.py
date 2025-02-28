@@ -16,6 +16,7 @@ class TaskForm(forms.ModelForm):
             "status",
             "assigned_to",
             "priority",
+            "file",
         ]
         widgets = {"due_date": forms.DateInput(attrs={"type": "date"})}
 
@@ -46,7 +47,7 @@ class TaskForm(forms.ModelForm):
 class SubTaskForm(forms.ModelForm):
     class Meta:
         model = SubTask
-        fields = ["title", "description", "status"]
+        fields = ["title", "description", "status", "file"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -67,20 +68,22 @@ SubTaskFormSet = inlineformset_factory(
 class TaskStatusForm(forms.ModelForm):
     class Meta:
         model = Task
-        fields = ["status"]
+        fields = ["status", "task_upload_file"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Add Bootstrap class to the status field
         self.fields["status"].widget.attrs.update({"class": "form-control"})
+        self.fields["task_upload_file"].widget.attrs.update({"class": "form-control"})
 
 
 class SubTaskStatusForm(forms.ModelForm):
     class Meta:
         model = SubTask
-        fields = ["status"]
+        fields = ["status", "task_upload_file"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Add Bootstrap class to the status field
         self.fields["status"].widget.attrs.update({"class": "form-control"})
+        self.fields["task_upload_file"].widget.attrs.update({"class": "form-control"})

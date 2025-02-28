@@ -3,7 +3,7 @@
 {% block content %}
   <h2>Update Task Status for: {{ task.title }}</h2>
 
-  <form method="post">
+  <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     <fieldset>
       <legend>Task Status</legend>
@@ -13,4 +13,4 @@
   </form>
 
   <a href="{% url 'task:user_task_list' %}" class="btn btn-secondary mt-3">Back to Task List</a>
-{% endblock %} 
+{% endblock %}

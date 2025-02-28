@@ -6,9 +6,11 @@
             <div class="card shadow-lg border-0">
                 <div class="card-body text-center">
                     <!-- Profile Picture -->
+                     {% if user.image %}
                     <div class="mb-4">
                         <img src="{{ user.image.url }}" alt="Profile Image" class="rounded-circle" style="width: 120px; height: 120px;">
                     </div>
+                    {%endif%}
 
                     <!-- Name and Username -->
                     <h3 class="fw-bold">{{ user.first_name }} {{ user.last_name }}</h3>
