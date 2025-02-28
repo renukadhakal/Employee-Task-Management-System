@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "task",
     "notification",
     "leave",
+    "django_crontab",
 ]
 
 MIDDLEWARE = [
@@ -144,3 +145,6 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = "uchihaobito9814@gmail.com"
 EMAIL_HOST_PASSWORD = "qtyx ulnz skwq znpc"
 EMAIL_USE_TLS = True
+CRONJOBS = [
+    ("0 9 * * *", "task.cron.tasks.send_task_notifications"),  # Runs daily at 9 AM
+]

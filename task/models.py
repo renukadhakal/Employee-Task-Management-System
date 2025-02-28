@@ -11,10 +11,7 @@ class Task(models.Model):
         ("COMPLETED", "Completed"),
         ("ON_HOLD", "On Hold"),
     ]
-    PRIORITY = [
-        ("HIGH", "High"),
-        ("LOW", "Low"),
-    ]
+    PRIORITY = [("HIGH", "High"), ("LOW", "Low"), ("MEDIUM", "Medium")]
 
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
