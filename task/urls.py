@@ -9,6 +9,11 @@ from .views import (
     update_sub_task_status,
     manager_list_tasks,
     time_log_list,
+    holiday_list,
+    holiday_create,
+    holiday_delete,
+    holiday_edit,
+    render_calendar,
 )
 
 
@@ -35,4 +40,9 @@ urlpatterns = [
         "manager/employee/tasks/", manager_list_tasks, name="manager_employee_task_list"
     ),
     path("time-logs/", time_log_list, name="time_log_list"),
+    path("holidays/", holiday_list, name="holiday_list"),
+    path("holidays/create/", holiday_create, name="create_holiday"),
+    path("holiday/edit/<int:holiday_id>/", holiday_edit, name="edit_holiday"),
+    path("holiday/delete/<int:holiday_id>/", holiday_delete, name="delete_holiday"),
+    path("calendar/", render_calendar, name="calendar"),
 ]

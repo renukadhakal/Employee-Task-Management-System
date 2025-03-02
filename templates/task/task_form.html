@@ -51,4 +51,17 @@
     }
   });
 </script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+      const holidays = JSON.parse('{{ holidays|safe }}');
+      const datePicker = document.querySelector("input[type='date']");
+
+      datePicker.addEventListener("input", function () {
+          if (holidays.includes(this.value)) {
+              alert("This date is a holiday. Please choose another date.");
+              this.value = "";
+          }
+      });
+  });
+</script>
 {% endblock %}

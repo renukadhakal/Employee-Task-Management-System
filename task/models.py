@@ -99,3 +99,11 @@ class TimeLog(models.Model):
                 return "Task is not started yet"
             return round(total_time.days * 24 * 3600 + total_time.seconds // 60 / 60, 2)
         return "No task or sub-task found"
+
+
+class Holiday(models.Model):
+    title = models.CharField(max_length=255)
+    date = models.DateField()
+
+    def __str__(self):
+        return self.title

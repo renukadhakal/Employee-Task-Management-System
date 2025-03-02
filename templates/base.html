@@ -264,9 +264,18 @@
                 </a>
               </li>
               <li class="nav-item">
-                <a href="#" class="nav-link align-middle px-0">
+                <a href="{% url 'task:calendar' %}" class="nav-link align-middle px-0">
                   <i class="fs-4 bi-house"></i>
-                  <span class="ms-1 d-none d-sm-inline">Holiday Calendar</span>
+                  <span class="ms-1 d-none d-sm-inline">Calendar</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a
+                  href="{% url 'task:holiday_list' %}"
+                  class="nav-link align-middle px-0"
+                >
+                  <i class="fs-4 bi-house"></i>
+                  <span class="ms-1 d-none d-sm-inline">Holiday Management</span>
                 </a>
               </li>
               <li class="nav-item">
@@ -302,6 +311,22 @@
                 >
                   <i class="fs-4 bi-house"></i>
                   <span class="ms-1 d-none d-sm-inline">Manage Employee</span>
+                </a>
+              </li>
+              
+              <li class="nav-item">
+                <a
+                  href="{% url 'task:holiday_list' %}"
+                  class="nav-link align-middle px-0"
+                >
+                  <i class="fs-4 bi-house"></i>
+                  <span class="ms-1 d-none d-sm-inline">Holiday Management</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="{% url 'task:calendar' %}" class="nav-link align-middle px-0">
+                  <i class="fs-4 bi-house"></i>
+                  <span class="ms-1 d-none d-sm-inline">Calendar</span>
                 </a>
               </li>
               <li class="nav-item">
@@ -361,8 +386,23 @@
                 </a>
               </li>
               <li class="nav-item">
+                <a
+                  href="{% url 'task:holiday_list' %}"
+                  class="nav-link align-middle px-0"
+                >
+                  <i class="fs-4 bi-house"></i>
+                  <span class="ms-1 d-none d-sm-inline">Holiday Management</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="{% url 'task:calendar' %}" class="nav-link align-middle px-0">
+                  <i class="fs-4 bi-house"></i>
+                  <span class="ms-1 d-none d-sm-inline">Calendar</span>
+                </a>
+              </li>
+              
+              <li class="nav-item">
                 <a href="{% url 'task:time_log_list' %}" class="nav-link align-middle px-0">
-
                   <i class="fs-4 bi-house"></i>
                   <span class="ms-1 d-none d-sm-inline">Time Log</span>
                 </a>

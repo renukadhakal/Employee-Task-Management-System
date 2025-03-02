@@ -1,12 +1,15 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
-from .models import Task, SubTask, TimeLog
-from .forms import TaskForm, SubTaskFormSet, TaskStatusForm, SubTaskStatusForm
+from .models import Task, SubTask, TimeLog, Holiday
+from .forms import TaskForm, SubTaskFormSet, TaskStatusForm, SubTaskStatusForm, HolidayForm
 from account.models import User
+import json
 
 
 @login_required(login_url="/login")
 def create_or_edit_task(request, task_id=None):
+    holidays = [date.strftime("%Y-%m-%d") for date in list(Holiday.objects.all().values_list('date', flat=True))]
+
     if task_id:
         task = get_object_or_404(Task, id=task_id)
     else:
@@ -51,6 +54,7 @@ def create_or_edit_task(request, task_id=None):
             "assigned_to_list": assigned_to_list,
             "task_form": task_form,
             "subtask_formset": subtask_formset,
+            "holidays": json.dumps(holidays),
         },
     )
 
@@ -141,3 +145,65 @@ def time_log_list(request):
         logs = TimeLog.objects.filter(start_time__range=[start_date, end_date])
 
     return render(request, "timelog/log_list.html", {"logs": logs})
+
+
+@login_required(login_url="/login")
+def holiday_list(request):
+    holidays = Holiday.objects.all()
+    form = HolidayForm()
+    if request.method == "POST":
+        form = HolidayForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("task:holiday_list")
+    return render(
+        request, "holiday/holiday_list.html", {"holidays": holidays, "form": form}
+    )
+
+
+@login_required(login_url="/login")
+def holiday_edit(request, holiday_id):
+    holiday = get_object_or_404(Holiday, id=holiday_id)
+    form = HolidayForm(instance=holiday)
+    if request.method == "POST":
+        form = HolidayForm(request.POST, instance=holiday)
+        if form.is_valid():
+            form.save()
+            return redirect("task:holiday_list")
+    return render(
+        request, "holiday/holiday_edit.html", {"form": form, "holiday": holiday}
+    )
+
+
+@login_required(login_url="/login")
+def holiday_delete(request, holiday_id):
+    holiday = get_object_or_404(Holiday, id=holiday_id)
+    holiday.delete()
+    return redirect("task:holiday_list")
+
+
+@login_required(login_url="/login")
+def holiday_create(request):
+    form = HolidayForm()
+    if request.method == "POST":
+        form = HolidayForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("task:holiday_list")
+    return render(request, "holiday/holiday_create.html", {"form": form})
+
+
+@login_required(login_url="/login")
+def render_calendar(request):
+    holidays = [
+        date.strftime("%Y-%m-%d")
+        for date in list(Holiday.objects.all().values_list("date", flat=True))
+    ]
+
+    holiday_form = HolidayForm()
+
+    return render(
+        request,
+        "calendar/base.html",
+        {"holidays": json.dumps(holidays), "form": holiday_form},
+    )

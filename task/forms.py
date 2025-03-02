@@ -1,6 +1,6 @@
 from django import forms
 from django.forms.models import inlineformset_factory
-from .models import Task, SubTask, User
+from .models import Task, SubTask, User, Holiday
 
 
 class TaskForm(forms.ModelForm):
@@ -87,3 +87,16 @@ class SubTaskStatusForm(forms.ModelForm):
         # Add Bootstrap class to the status field
         self.fields["status"].widget.attrs.update({"class": "form-control"})
         self.fields["task_upload_file"].widget.attrs.update({"class": "form-control"})
+
+
+class HolidayForm(forms.ModelForm):
+    date = forms.DateField(widget=forms.DateInput(attrs={"type": "date"}), label="Date")
+
+    class Meta:
+        model = Holiday
+        fields = ["date", "title"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.update({"class": "form-control"})

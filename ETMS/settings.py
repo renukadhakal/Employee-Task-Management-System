@@ -146,5 +146,21 @@ EMAIL_HOST_USER = "uchihaobito9814@gmail.com"
 EMAIL_HOST_PASSWORD = "qtyx ulnz skwq znpc"
 EMAIL_USE_TLS = True
 CRONJOBS = [
-    ("0 9 * * *", "task.cron.tasks.send_task_notifications"),  # Runs daily at 9 AM
+    ("42 19 * * *", "task.cron.tasks.send_task_notifications"),  # Runs daily at 9 AM
 ]
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("localhost", 6379)],
+        },
+    },
+}
+print(CHANNEL_LAYERS, "CHANNEL_LAYERS")
+
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_RESULT_BACKEND = f"redis://localhost:6379/0"
+CELERY_BROKER_URL = CELERY_RESULT_BACKEND
+CELERY_ACCEPT_CONTENT = ["application/json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
