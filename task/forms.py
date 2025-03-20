@@ -1,6 +1,6 @@
 from django import forms
 from django.forms.models import inlineformset_factory
-from .models import Task, SubTask, User, Holiday
+from .models import Task, SubTask, User, Holiday, Category
 
 
 class TaskForm(forms.ModelForm):
@@ -15,6 +15,7 @@ class TaskForm(forms.ModelForm):
             "due_date",
             "status",
             "assigned_to",
+            "category",
             "priority",
             "file",
         ]
@@ -95,6 +96,30 @@ class HolidayForm(forms.ModelForm):
     class Meta:
         model = Holiday
         fields = ["date", "title"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.update({"class": "form-control"})
+
+
+class HolidayForm(forms.ModelForm):
+    date = forms.DateField(widget=forms.DateInput(attrs={"type": "date"}), label="Date")
+
+    class Meta:
+        model = Holiday
+        fields = ["date", "title"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.update({"class": "form-control"})
+
+
+class CategoryForm(forms.ModelForm):
+    class Meta:
+        model = Category
+        fields = ["name"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -12,4 +12,5 @@ class LeaveRequestForm(forms.ModelForm):
                 attrs={"class": "form-control", "type": "date"}
             ),
             "end_at": forms.DateInput(attrs={"class": "form-control", "type": "date"}),
+            "leave_type": forms.Select(attrs={"class": "form-control"}),
         }

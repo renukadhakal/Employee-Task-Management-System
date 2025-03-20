@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>All Categories</h2>
+<a href="{% url 'task:category_create' %}" class="btn btn-primary btn-sm">Create a new category</a>
+
+<table class="table table-bordered table-striped">
+    <thead class="thead-dark">
+        <tr>
+            <th>#</th>
+            <th>Title</th>
+            <th>Total Tasks</th>
+            <th>Created Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% if categories %}
+        {% for category in categories %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ category.name }}</td>
+            <td>{{ category.task_count }}</td>
+            <td>{{ category.created_at }}</td>
+
+        </tr>
+        {% endfor %}
+        {% else %}
+        <tr>
+            <p>No tasks categories available. <a href="{% url 'task:category_create' %}">Create a category</a>.</p>
+        </tr>
+        {% endif %}
+    </tbody>
+</table>
+{% endblock %}

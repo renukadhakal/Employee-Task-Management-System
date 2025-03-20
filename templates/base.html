@@ -220,7 +220,7 @@
             >
               {% if user.role == 'admin' %}
               <li class="nav-item">
-                <a href="#" class="nav-link align-middle px-0">
+               <a href="{% url 'task:dashboard' %}" class="nav-link align-middle px-0">
                   <i class="fs-4 bi-house"></i>
                   <span class="ms-1 d-none d-sm-inline">Dashboard</span>
                 </a>
@@ -254,7 +254,15 @@
                   <span class="ms-1 d-none d-sm-inline">Task Overview</span>
                 </a>
               </li>
-
+              <li class="nav-item">
+                <a
+                  href="{% url 'task:category_list' %}"
+                  class="nav-link align-middle px-0"
+                >
+                  <i class="fs-4 bi-house"></i>
+                  <span class="ms-1 d-none d-sm-inline">Task Categories</span>
+                </a>
+              </li>
               <li class="nav-item">
                 <a href="#" class="nav-link align-middle px-0">
                   <i class="fs-4 bi-house"></i>
@@ -299,7 +307,7 @@
 
               {% elif user.role == 'manager' %}
               <li class="nav-item">
-                <a href="#" class="nav-link align-middle px-0">
+                <a href="{% url 'task:dashboard' %}" class="nav-link align-middle px-0">
                   <i class="fs-4 bi-house"></i>
                   <span class="ms-1 d-none d-sm-inline">Dashboard</span>
                 </a>
@@ -395,7 +403,7 @@
                 </a>
               </li>
               <li class="nav-item">
-                <a href="{% url 'task:calendar' %}" class="nav-link align-middle px-0">
+                <a href="{% url 'task:calendar' %}" class="nav-link align-middle px-0"> 
                   <i class="fs-4 bi-house"></i>
                   <span class="ms-1 d-none d-sm-inline">Calendar</span>
                 </a>

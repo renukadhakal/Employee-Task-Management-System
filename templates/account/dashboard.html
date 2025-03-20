@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <h2 class="my-4 text-center">Dashboard</h2>
+    
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title">Profile</h5>
+                    <p class="card-text"><strong>Name:</strong> {{ user.get_full_name }}</p>
+                    <p class="card-text"><strong>Email:</strong> {{ user.email }}</p>
+                    <p class="card-text"><strong>Username:</strong> {{ user.username }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- <div class="col-lg-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title">Time Logs</h5>
+                    <p class="card-text"><strong>Total Time Logs:</strong> {{ total_time_logs }}</p>
+                    <p class="card-text"><strong>Total Hours:</strong> {{ total_hours }}</p>
+                    <p class="card-text"><strong>Total Minutes:</strong> {{ total_minutes }}</p>
+                </div>
+            </div>
+        </div> -->
+    </div>
+    
+    <div class="row g-4">
+        <form method="GET" class="row g-3 mb-4">
+            <div class="col-md-4">
+                <label for="start_date" class="form-label">Start Date:</label>
+                <input type="date" id="start_date" name="start_date" class="form-control" value="{{ start_date }}">
+            </div>
+            <div class="col-md-4">
+                <label for="end_date" class="form-label">End Date:</label>
+                <input type="date" id="end_date" name="end_date" class="form-control" value="{{ end_date }}">
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary">Apply</button>
+            </div>
+        </form>
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 p-3">
+                <h5>Leave Data</h5>
+                <canvas id="leave_chart"></canvas>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 p-3">
+                <h5>Time Log Data</h5>
+                <canvas id="time_chart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.1/dist/chart.umd.min.js"></script>
+
+<script>
+    const leaveLabels = JSON.parse('{{ leave_labels|safe }}');
+    const leaveValues = JSON.parse('{{ leave_values|safe }}');
+    const timeLabels = JSON.parse('{{ time_labels|safe }}');
+    const timeValues = JSON.parse('{{ time_values|safe }}');
+
+    const leaveChartCtx = document.getElementById("leave_chart").getContext("2d");
+    new Chart(leaveChartCtx, {
+        type: "bar",
+        data: {
+            labels: leaveLabels,
+            datasets: [{
+                label: "Leave Days",
+                backgroundColor: "#79AEC8",
+                borderColor: "#417690",
+                data: leaveValues
+            }]
+        },
+        options: { responsive: true, maintainAspectRatio: true }
+    });
+
+    const timeChartCtx = document.getElementById("time_chart").getContext("2d");
+    new Chart(timeChartCtx, {
+        type: "bar",
+        data: {
+            labels: timeLabels,
+            datasets: [{
+                label: "Hours Worked",
+                backgroundColor: "#79AEC8",
+                borderColor: "#417690",
+                data: timeValues
+            }]
+        },
+        options: { responsive: true, maintainAspectRatio: true }
+    });
+</script>
+{% endblock %}

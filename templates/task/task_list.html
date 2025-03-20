@@ -14,6 +14,7 @@
           <th>Status</th>
           <th>Assigned to</th>
           <th>File</th>
+          <th>Assigned to</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -26,6 +27,11 @@
             <td>{{ task.due_date }}</td>
             <td>{{ task.get_status_display }}</td>
             <td>{{ task.assigned_to}}</td>
+            {% if task.category %}
+              <td>{{ task.category.name }}</td>
+            {% else %}
+              <td>-</td>
+            {% endif %}
             <td>
               {% if task.file %}
                 {% if task.file.url|lower|slice:"-4:" == ".jpg" or task.file.url|lower|slice:"-4:" == ".png" %}

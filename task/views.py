@@ -1,9 +1,13 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
-from .models import Task, SubTask, TimeLog, Holiday
-from .forms import TaskForm, SubTaskFormSet, TaskStatusForm, SubTaskStatusForm, HolidayForm
+from .models import Task, SubTask, TimeLog, Holiday, Category
+from .forms import TaskForm, SubTaskFormSet, TaskStatusForm, SubTaskStatusForm, HolidayForm, CategoryForm
 from account.models import User
 import json
+from datetime import datetime, timedelta
+from django.db.models import Count, Sum, F, ExpressionWrapper, fields
+from leave.models import LeaveRequest
+
 
 
 @login_required(login_url="/login")
@@ -207,3 +211,110 @@ def render_calendar(request):
         "calendar/base.html",
         {"holidays": json.dumps(holidays), "form": holiday_form},
     )
+
+
+@login_required(login_url="/login")
+def dashboard(request):
+    start_date = request.GET.get("start_date", datetime.now().strftime("%Y-%m-%d"))
+    end_date = request.GET.get(
+        "end_date", (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
+    )
+
+    # Set default values if dates are not provided
+    if start_date and end_date:
+        start_date = datetime.strptime(start_date, "%Y-%m-%d")
+        end_date = datetime.strptime(end_date, "%Y-%m-%d")
+    else:
+        start_date = None
+        end_date = None
+    if request.user.role == User.Role_Type.ADMIN:
+        leave_queryset = LeaveRequest.objects.all()
+        time_queryset = TimeLog.objects.all()
+    elif request.user.role == User.Role_Type.MANAGER:
+        leave_queryset = LeaveRequest.objects.filter(user__report_to=request.user)
+        time_queryset = TimeLog.objects.filter(user__report_to=request.user)
+    else:
+        time_queryset = TimeLog.objects.filter(user=request.user)
+        leave_queryset = LeaveRequest.objects.filter(user=request.user)
+
+    if start_date and end_date:
+        leave_queryset = leave_queryset.filter(
+            start_at__gte=start_date, end_at__lte=end_date
+        )
+
+    leave_data = (
+        leave_queryset.extra({"day": "date(start_at)"})
+        .values("day")
+        .annotate(count=Count("id"))
+        .order_by("day")
+    )
+
+    print(leave_data, "leave data")
+    leave_labels = [entry["day"] for entry in leave_data]
+    leave_values = [entry["count"] for entry in leave_data]
+
+    # Filter and clean Time Logs data
+
+    if start_date and end_date:
+        time_queryset = time_queryset.filter(
+            start_time__gte=start_date, end_time__lte=end_date
+        )
+
+    time_data = (
+        time_queryset.annotate(
+            duration=ExpressionWrapper(
+                F("end_time") - F("start_time"), output_field=fields.DurationField()
+            )
+        )
+        .extra({"day": "date(start_time)"})
+        .values("day")
+        .annotate(total_hours=Sum("duration"))
+        .order_by("day")
+    )
+    print(time_data, "time data")
+    time_labels = [entry["day"] for entry in time_data]
+    time_values = [
+        entry["total_hours"].total_seconds() / 3600 if entry["total_hours"] else 0
+        for entry in time_data
+    ]
+
+    context = {
+        "leave_labels": json.dumps(leave_labels),
+        "leave_values": json.dumps(leave_values),
+        # "leave_values": leave_values,
+        "time_labels": json.dumps(time_labels),
+        "time_values": json.dumps(time_values),
+        "start_date": start_date.strftime("%Y-%m-%d") if start_date else "",
+        "end_date": end_date.strftime("%Y-%m-%d") if end_date else "",
+    }
+
+    print(context, "context")
+
+    return render(request, "account/dashboard.html", context)
+
+
+@login_required(login_url="/login")
+def category_list(request):
+    form = CategoryForm()
+    categories = Category.objects.all().annotate(
+        task_count=Count("tasks"),
+    )
+    return render(
+        request,
+        "task/category_list.html",
+        {
+            "categories": categories,
+            "form": form,
+        },
+    )
+
+
+@login_required(login_url="/login")
+def category_create(request):
+    form = CategoryForm()
+    if request.method == "POST":
+        form = CategoryForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("task:category_list")
+    return render(request, "task/category_form.html", {"form": form})

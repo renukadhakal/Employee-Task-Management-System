@@ -2,8 +2,21 @@ from django.db import models
 from account.models import User
 from django.utils import timezone
 
-
 # Create your models here.
+
+
+class Category(models.Model):
+    name = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = "Categories"
+        ordering = ["name"]
+
+
 class Task(models.Model):
     STATUS_CHOICES = [
         ("PENDING", "Pending"),
@@ -11,15 +24,14 @@ class Task(models.Model):
         ("COMPLETED", "Completed"),
         ("ON_HOLD", "On Hold"),
     ]
-    PRIORITY = [
-        ("HIGH", "High"),
-        ("LOW", "Low"),
-        ("MEDIUM", "Medium")
-    ]
+    PRIORITY = [("HIGH", "High"), ("LOW", "Low"), ("MEDIUM", "Medium")]
 
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="tasks")
+    category = models.ForeignKey(
+        Category, on_delete=models.CASCADE, related_name="tasks"
+    )
     assigned_to = models.ForeignKey(User, on_delete=models.CASCADE, null=2)
     created_at = models.DateTimeField(auto_now_add=True)
     due_date = models.DateField(blank=True, null=True)
@@ -28,6 +40,9 @@ class Task(models.Model):
     )  # Optional, since status can also indicate completion
     priority = models.CharField(max_length=20, choices=PRIORITY, default="LOW")
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="PENDING")
+    category = models.ForeignKey(
+        Category, on_delete=models.CASCADE, related_name="tasks", null=True, blank=True
+    )
     file = models.FileField(upload_to="task/", null=True, blank=True)
     task_upload_file = models.FileField(upload_to="task/", null=True, blank=True)
 
@@ -74,7 +89,7 @@ class TimeLog(models.Model):
     # duration = models.DurationField(blank=True, null=True)
 
     def __str__(self):
-        return f"{self.task.title} - {self.user.get_full_name()}"
+        return f"{self.task.id if self.task else self.sub_task.id} - {self.user.get_full_name()} - {self.start_time} - {self.end_time}"
 
     @property
     def get_total_time(self):
@@ -87,8 +102,6 @@ class TimeLog(models.Model):
                 total_time = timezone.now() - self.start_time
             if self.task.status == "PENDING":
                 return "Task is not started yet"
-            print(total_time, "total time")
-            print(type(total_time), "total time")
             return round(total_time.days * 24 * 3600 + total_time.seconds // 60 / 60, 2)
         if self.sub_task:
             if self.sub_task.status == "COMPLETED":

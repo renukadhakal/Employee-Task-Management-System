@@ -1,0 +1,12 @@
+{% extends 'base.html' %} {% block content %}
+<h2>{% if form.instance.pk %}Edit Category{% else %}Create Category{% endif %}</h2>
+<form method="post">
+  {% csrf_token %}
+  <fieldset>
+    <legend>Task Category</legend>
+    {{ form.as_p }}
+  </fieldset>
+
+  <button type="submit">Save</button>
+</form>
+{% endblock %}

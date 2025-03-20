@@ -14,6 +14,9 @@ from .views import (
     holiday_delete,
     holiday_edit,
     render_calendar,
+    category_list,
+    category_create,
+    dashboard,
 )
 
 
@@ -45,4 +48,7 @@ urlpatterns = [
     path("holiday/edit/<int:holiday_id>/", holiday_edit, name="edit_holiday"),
     path("holiday/delete/<int:holiday_id>/", holiday_delete, name="delete_holiday"),
     path("calendar/", render_calendar, name="calendar"),
+    path("dashboard/", dashboard, name="dashboard"),
+    path("categories/", category_list, name="category_list"),
+    path("categories/create/", category_create, name="category_create"),
 ]
