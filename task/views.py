@@ -1,18 +1,39 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from .models import Task, SubTask, TimeLog, Holiday, Category
-from .forms import TaskForm, SubTaskFormSet, TaskStatusForm, SubTaskStatusForm, HolidayForm, CategoryForm
+from .forms import (
+    TaskForm,
+    SubTaskFormSet,
+    TaskStatusForm,
+    SubTaskStatusForm,
+    HolidayForm,
+    CategoryForm,
+)
 from account.models import User
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from django.db.models import Count, Sum, F, ExpressionWrapper, fields
 from leave.models import LeaveRequest
+from django.http import HttpResponse
+import csv
+from django.core.serializers.json import DjangoJSONEncoder
 
+
+class DateTimeEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, datetime):
+            return o.isoformat()
+        if isinstance(o, date):
+            return o.isoformat()
+        return json.JSONEncoder.default(self, o)
 
 
 @login_required(login_url="/login")
 def create_or_edit_task(request, task_id=None):
-    holidays = [date.strftime("%Y-%m-%d") for date in list(Holiday.objects.all().values_list('date', flat=True))]
+    holidays = [
+        date.strftime("%Y-%m-%d")
+        for date in list(Holiday.objects.all().values_list("date", flat=True))
+    ]
 
     if task_id:
         task = get_object_or_404(Task, id=task_id)
@@ -147,7 +168,38 @@ def time_log_list(request):
         start_date = request.GET.get("start_date")
         end_date = request.GET.get("end_date")
         logs = TimeLog.objects.filter(start_time__range=[start_date, end_date])
-
+    logs = logs.filter(task__isnull=False)
+    if len(request.GET.get("export", "")) > 0:
+        print("export")
+        response = HttpResponse(content_type="text/csv")
+        writer = csv.writer(response)
+        writer.writerow(
+            [
+                "User",
+                "Task",
+                "Start Time",
+                "End Date",
+                "Duration",
+                "Priority",
+                "Category",
+                "Status",
+            ]
+        )
+        for log in logs:
+            writer.writerow(
+                [
+                    log.user.get_full_name(),
+                    log.task.title,
+                    log.start_time,
+                    log.end_time,
+                    log.get_total_time,
+                    log.task.priority,
+                    log.task.category.category_name if log.task.category else "N/A",
+                    log.task.status,
+                ]
+            )
+        response["Content-Disposition"] = 'attachment; filename="time_logs.csv"'
+        return response
     return render(request, "timelog/log_list.html", {"logs": logs})
 
 
@@ -277,20 +329,35 @@ def dashboard(request):
         entry["total_hours"].total_seconds() / 3600 if entry["total_hours"] else 0
         for entry in time_data
     ]
-
     context = {
-        "leave_labels": json.dumps(leave_labels),
-        "leave_values": json.dumps(leave_values),
-        # "leave_values": leave_values,
-        "time_labels": json.dumps(time_labels),
-        "time_values": json.dumps(time_values),
-        "start_date": start_date.strftime("%Y-%m-%d") if start_date else "",
-        "end_date": end_date.strftime("%Y-%m-%d") if end_date else "",
+        "leave_labels": leave_labels,
+        "leave_values": leave_values,
+        "time_labels": time_labels,
+        "time_values": time_values,
+        "start_date": start_date,
+        "end_date": end_date,
     }
+    # context = {
+    #     "leave_labels": json.dumps(
+    #         leave_labels, sort_keys=False, indent=1, cls=DateTimeEncoder
+    #     ),
+    #     "leave_values": json.dumps(leave_values),
+    #     # "leave_values": leave_values,
+    #     "time_labels": json.dumps(
+    #         time_labels, sort_keys=False, indent=1, cls=DateTimeEncoder
+    #     ),
+    #     "time_values": json.dumps(
+    #         time_values, sort_keys=False, indent=1, cls=DateTimeEncoder
+    #     ),
+    #     "start_date": start_date.strftime("%Y-%m-%d") if start_date else "",
+    #     "end_date": end_date.strftime("%Y-%m-%d") if end_date else "",
+    # }
 
     print(context, "context")
 
-    return render(request, "account/dashboard.html", context)
+    return render(
+        request, "account/dashboard.html", json.dumps(context, cls=DateTimeEncoder)
+    )
 
 
 @login_required(login_url="/login")

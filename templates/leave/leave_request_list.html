@@ -5,7 +5,15 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2 class="mb-0">Your Leave Requests</h2>
         <p>You have <strong>{{ remaining_leave }}</strong> leave requests remaining.</p>
-        <a href="{% url 'leave:leave_request_create' %}" class="btn btn-primary {% if remaining_leave == 0 %}disabled{% endif %}">Apply for Leave</a>
+        <div class="row">
+            <div class="col-sm">
+                <a href="{% url 'leave:leave_request_create' %}"
+                    class="btn btn-primary {% if remaining_leave == 0 %}disabled{% endif %}">Apply for Leave</a>
+            </div>
+            <div class="col-sm">
+                <button id="export" class="btn btn-primary">Export</a>
+            </div>
+        </div>
     </div>
      {% if messages %}
             <div class="alert alert-dismissible fade show">
@@ -62,4 +70,11 @@
         </div>
     {% endif %}
 </div>
+<script>
+    document.getElementById('export').addEventListener('click', function() {
+        const url = new URL(window.location.href);
+        url.searchParams.set('export', 'true');
+        window.location.href = url.toString();
+    });
+</script>
 {% endblock %}

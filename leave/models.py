@@ -66,13 +66,12 @@ class LeaveRequest(models.Model):
 
     @staticmethod
     def remaining_leave(user):
-        total_leaves = LeaveRequest.objects.filter(user=user).count()
-        return (
-            LeaveType.objects.all().aggregate(Sum("total"))["total__sum"] - total_leaves
-            if total_leaves
-            < LeaveType.objects.all().aggregate(Sum("total"))["total__sum"]
-            else 0
-        )
+        total_leaves = LeaveRequest.objects.filter(user=user).count() or 20
+        print(total_leaves, "total leaves")
+        total_leave_type = LeaveType.objects.all().aggregate(Sum("total"))["total__sum"]
+        if total_leave_type is None:
+            total_leave_type = 20
+        return total_leave_type - total_leaves if total_leaves < total_leave_type else 0
 
     def __str__(self):
         return f"{self.user.get_full_name()} - {self.leave_type} - {self.status}"

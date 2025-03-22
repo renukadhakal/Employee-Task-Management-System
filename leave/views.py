@@ -6,6 +6,8 @@ from .forms import LeaveRequestForm
 from notification.models import Notification
 from account.models import User
 from django.contrib import messages
+import csv
+from django.http import HttpResponse
 
 
 @login_required(login_url="/login")
@@ -23,6 +25,29 @@ def leave_request_list(request):
 
     # print(leave_requests_with_types, 'leave requests with types')
     print(leave_requests, "leave requests")
+    if len(request.GET.get("export", "")) > 0:
+        response = HttpResponse(content_type="text/csv")
+        writer = csv.writer(response)
+        writer.writerow(
+            ["User", "Leave Type", "Start Date", "End Date", "Status", "Approved By"]
+        )
+        for leave_request in leave_requests:
+            writer.writerow(
+                [
+                    leave_request.user.get_full_name(),
+                    leave_request.leave_type,
+                    leave_request.start_at,
+                    leave_request.end_at,
+                    leave_request.status,
+                    (
+                        leave_request.approved_by.get_full_name()
+                        if leave_request.approved_by
+                        else "Not Approved"
+                    ),
+                ]
+            )
+        response["Content-Disposition"] = 'attachment; filename="leave_request.csv"'
+        return response
     # print(leave_types_dict, 'leave types dict')
     # print(leave_types, 'leave types')
     return render(

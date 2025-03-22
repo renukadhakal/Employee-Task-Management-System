@@ -19,7 +19,9 @@
         <button type="button" id="reset" class="btn btn-danger mt-4">Reset</button>
       </div>
   </form>
-
+<div class="col-md-auto">
+    <button type="button" class="btn btn-primary mt-4" id="export">Export</a>
+  </div>
     <table class="table table-bordered table-striped">
       
       <thead class="thead-dark mt-4" style="margin-top: 30px;">
@@ -75,6 +77,12 @@
           url.searchParams.delete('start_date');
           url.searchParams.delete('end_date');
           window.location.href = url.toString();
+        });
+        document.getElementById('export').addEventListener('click', function() {
+        console.log('Export button clicked');
+        const url = new URL(window.location.href);
+        url.searchParams.set('export', 'true');
+        window.location.href = url.toString();
         });
       </script>
 {% endblock %}
