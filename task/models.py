@@ -105,7 +105,7 @@ class TimeLog(models.Model):
             return round(total_time.days * 24 * 3600 + total_time.seconds // 60 / 60, 2)
         if self.sub_task:
             if self.sub_task.status == "COMPLETED":
-                total_time = self.end_time - self.start_time
+                total_time = self.end_time or timezone.now() - self.start_time
             if self.sub_task.status == "IN_PROGRESS":
                 total_time = timezone.now() - self.start_time
             if self.sub_task.status == "PENDING":

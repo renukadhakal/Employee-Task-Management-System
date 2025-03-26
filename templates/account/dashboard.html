@@ -60,9 +60,9 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.1/dist/chart.umd.min.js"></script>
 
 <script>
-    const leaveLabels = JSON.parse('{{ leave_labels|safe }}');
+    const leaveLabels = JSON.parse('{{ leave_labels|safe|escapejs }}');
     const leaveValues = JSON.parse('{{ leave_values|safe }}');
-    const timeLabels = JSON.parse('{{ time_labels|safe }}');
+    const timeLabels = JSON.parse('{{ time_labels|safe|escapejs }}');
     const timeValues = JSON.parse('{{ time_values|safe }}');
 
     const leaveChartCtx = document.getElementById("leave_chart").getContext("2d");

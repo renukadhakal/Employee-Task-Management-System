@@ -17,6 +17,7 @@ from leave.models import LeaveRequest
 from django.http import HttpResponse
 import csv
 from django.core.serializers.json import DjangoJSONEncoder
+from django.utils import timezone
 
 
 class DateTimeEncoder(json.JSONEncoder):
@@ -126,10 +127,21 @@ def update_task_status(request, task_id):
     task = get_object_or_404(Task, id=task_id, assigned_to=request.user)
 
     if request.method == "POST":
-        form = TaskStatusForm(request.POST, request.FILES, instance=task)
+        form = TaskStatusForm(request.POST, instance=task)
         if form.is_valid():
             form.save()
-            return redirect("task:user_task_list")  # Redirect back to the task list
+            if request.user.Role_Type.EMPLOYEE:
+                if task.status == "IN_PROGRESS":
+                    log, created = TimeLog.objects.get_or_create(
+                        user=request.user, task=task
+                    )
+                    log.start_time = timezone.now()
+                    log.save()
+                if task.status == "COMPLETED":
+                    log = TimeLog.objects.get(user=request.user, task=task)
+                    log.end_time = timezone.now()
+                    log.save()
+            return redirect("task:user_task_list")
     else:
         form = TaskStatusForm(instance=task)
 
@@ -267,18 +279,19 @@ def render_calendar(request):
 
 @login_required(login_url="/login")
 def dashboard(request):
-    start_date = request.GET.get("start_date", datetime.now().strftime("%Y-%m-%d"))
-    end_date = request.GET.get(
+    start_date_str = request.GET.get("start_date", datetime.now().strftime("%Y-%m-%d"))
+    end_date_str = request.GET.get(
         "end_date", (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
     )
 
-    # Set default values if dates are not provided
-    if start_date and end_date:
-        start_date = datetime.strptime(start_date, "%Y-%m-%d")
-        end_date = datetime.strptime(end_date, "%Y-%m-%d")
-    else:
-        start_date = None
-        end_date = None
+    try:
+        start_date = datetime.strptime(start_date_str, "%Y-%m-%d")
+        end_date = datetime.strptime(end_date_str, "%Y-%m-%d")
+    except ValueError:
+        start_date = datetime.now()
+        end_date = datetime.now() - timedelta(days=7)
+
+    # Fetch data based on user role
     if request.user.role == User.Role_Type.ADMIN:
         leave_queryset = LeaveRequest.objects.all()
         time_queryset = TimeLog.objects.all()
@@ -286,31 +299,30 @@ def dashboard(request):
         leave_queryset = LeaveRequest.objects.filter(user__report_to=request.user)
         time_queryset = TimeLog.objects.filter(user__report_to=request.user)
     else:
-        time_queryset = TimeLog.objects.filter(user=request.user)
         leave_queryset = LeaveRequest.objects.filter(user=request.user)
+        time_queryset = TimeLog.objects.filter(user=request.user)
 
-    if start_date and end_date:
-        leave_queryset = leave_queryset.filter(
-            start_at__gte=start_date, end_at__lte=end_date
-        )
+    # Filter leave requests by date range
+    leave_queryset = leave_queryset.filter(
+        start_at__gte=start_date, end_at__lte=end_date
+    )
 
     leave_data = (
-        leave_queryset.extra({"day": "date(start_at)"})
+        leave_queryset.extra({"day": "DATE(start_at)"})
         .values("day")
         .annotate(count=Count("id"))
         .order_by("day")
     )
 
-    print(leave_data, "leave data")
-    leave_labels = [entry["day"] for entry in leave_data]
+    # leave_labels = [entry["day"].strftime("%Y-%m-%d") for entry in leave_data]
+    leave_labels = [entry["day"].strftime("%Y-%m-%d") for entry in leave_data]
+
     leave_values = [entry["count"] for entry in leave_data]
 
-    # Filter and clean Time Logs data
-
-    if start_date and end_date:
-        time_queryset = time_queryset.filter(
-            start_time__gte=start_date, end_time__lte=end_date
-        )
+    # Filter time logs by date range
+    time_queryset = time_queryset.filter(
+        start_time__gte=start_date, end_time__lte=end_date
+    )
 
     time_data = (
         time_queryset.annotate(
@@ -318,46 +330,32 @@ def dashboard(request):
                 F("end_time") - F("start_time"), output_field=fields.DurationField()
             )
         )
-        .extra({"day": "date(start_time)"})
+        .extra({"day": "DATE(start_time)"})
         .values("day")
         .annotate(total_hours=Sum("duration"))
         .order_by("day")
     )
-    print(time_data, "time data")
-    time_labels = [entry["day"] for entry in time_data]
+
+    time_labels = [entry["day"].strftime("%Y-%m-%d") for entry in time_data]
+
     time_values = [
         entry["total_hours"].total_seconds() / 3600 if entry["total_hours"] else 0
         for entry in time_data
     ]
+
+    # Context dictionary (No JSON serialization here)
     context = {
-        "leave_labels": leave_labels,
-        "leave_values": leave_values,
-        "time_labels": time_labels,
-        "time_values": time_values,
-        "start_date": start_date,
-        "end_date": end_date,
+        "leave_labels": json.dumps(leave_labels),
+        "leave_values": json.dumps(leave_values),
+        "time_labels": json.dumps(time_labels),
+        "time_values": json.dumps(time_values),
+        "start_date": json.dumps(start_date.strftime("%Y-%m-%d")),
+        "end_date": json.dumps(end_date.strftime("%Y-%m-%d")),
     }
-    # context = {
-    #     "leave_labels": json.dumps(
-    #         leave_labels, sort_keys=False, indent=1, cls=DateTimeEncoder
-    #     ),
-    #     "leave_values": json.dumps(leave_values),
-    #     # "leave_values": leave_values,
-    #     "time_labels": json.dumps(
-    #         time_labels, sort_keys=False, indent=1, cls=DateTimeEncoder
-    #     ),
-    #     "time_values": json.dumps(
-    #         time_values, sort_keys=False, indent=1, cls=DateTimeEncoder
-    #     ),
-    #     "start_date": start_date.strftime("%Y-%m-%d") if start_date else "",
-    #     "end_date": end_date.strftime("%Y-%m-%d") if end_date else "",
-    # }
 
     print(context, "context")
 
-    return render(
-        request, "account/dashboard.html", json.dumps(context, cls=DateTimeEncoder)
-    )
+    return render(request, "account/dashboard.html", context)
 
 
 @login_required(login_url="/login")
