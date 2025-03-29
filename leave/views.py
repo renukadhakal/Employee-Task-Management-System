@@ -50,13 +50,15 @@ def leave_request_list(request):
         return response
     # print(leave_types_dict, 'leave types dict')
     # print(leave_types, 'leave types')
+    remaining_leaves = LeaveRequest.remaining_leaves_by_type(request.user)
+
     return render(
         request,
         "leave/leave_request_list.html",
         {
             "leave_requests": leave_requests,
             "leave_types": LeaveType.objects.all(),
-            "remaining_leave": LeaveRequest.remaining_leave(request.user),
+            "remaining_leaves": remaining_leaves,
         },
     )
     # leave_requests = LeaveRequest.objects.filter(user=request.user).order_by(
@@ -171,9 +173,10 @@ def approve_leave_request(request, pk):
 
     requested_days = (leave_request.end_at - leave_request.start_at).days + 1
 
-    leave = LeaveRequest.objects.get(user=leave_request.user)
-
-    if requested_days > leave.total:
+    leave = LeaveRequest.objects.get(user=leave_request.user, pk=pk)
+    remaining_leave = leave.remaining_leave(leave_request.user)
+    print(remaining_leave)
+    if int(requested_days) > remaining_leave:
         messages.error(
             request, "Cannot approve leave request. Not enough leave balance."
         )
@@ -182,9 +185,6 @@ def approve_leave_request(request, pk):
     leave_request.status = LeaveRequest.Leave_Types.APPROVED
     leave_request.approved_by = request.user
     leave_request.save()
-
-    leave.total -= requested_days
-    leave.save()
 
     Notification.objects.create(
         title="Leave request",

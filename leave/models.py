@@ -1,5 +1,6 @@
 from django.db import models
-from django.db.models import Sum
+from django.db.models import Sum, Count, F, ExpressionWrapper, fields
+from datetime import timedelta
 from account.models import User
 
 
@@ -72,6 +73,37 @@ class LeaveRequest(models.Model):
         if total_leave_type is None:
             total_leave_type = 20
         return total_leave_type - total_leaves if total_leaves < total_leave_type else 0
+
+    @staticmethod
+    def remaining_leaves_by_type(user):
+        total_leaves = {
+            leave.leave_type: leave.total for leave in LeaveType.objects.all()
+        }
+
+        used_leaves = (
+            LeaveRequest.objects.filter(user=user, status="approved")
+            .annotate(
+                days_used=ExpressionWrapper(
+                    F("end_at") - F("start_at"), output_field=fields.DurationField()
+                )
+            )
+            .values("leave_type__leave_type")
+            .annotate(used_days=Sum("days_used"))
+        )
+
+        used_leaves_dict = {
+            leave["leave_type__leave_type"]: leave["used_days"].days
+            for leave in used_leaves
+        }
+
+        remaining = {
+            leave_type: max(
+                total_leaves.get(leave_type, 0) - used_leaves_dict.get(leave_type, 0), 0
+            )
+            for leave_type in total_leaves
+        }
+
+        return remaining
 
     def __str__(self):
         return f"{self.user.get_full_name()} - {self.leave_type} - {self.status}"

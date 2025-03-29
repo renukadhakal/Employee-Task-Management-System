@@ -15,6 +15,11 @@
         <span class="badge {% if tasks.priority == 'HIGH'%} bg-danger {% else %} bg-warning {% endif %}">{{ tasks.priority }}</span>
       </p>
       <p class="card-text"><strong>Status:</strong> <span class="badge bg-info">{{ tasks.status }}</span></p>
+      <p class="card-text"><strong>Task Category:</strong> <span class="badge bg-info">{% if tasks.category %}
+              {{ tasks.category.name }}</td>
+            {% else %}
+              
+            {% endif %}</span></p>
       <p class="card-text"><strong>Due Date:</strong> {{ tasks.due_date }}</p>
       <p class="card-text"><strong>Created At:</strong> {{ tasks.created_at }}</p>
 

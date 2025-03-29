@@ -1,88 +1,87 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <h2>All Time Logs</h2>
-  <form method="get" class="form-inline mb-2">
-    <div class="row mt-4">
-      <div class="col-md-auto">
-        <label for="start_date">Start Date</label>
-        <input type="date" class="form-control" id="start_date" name="start_date" value="{{ request.GET.start_date }}">
-      </div>
-      <div class="col-md-auto">
-        <label for="end_date">End Date</label>
-        <input type="date" class="form-control" id="end_date" name="end_date" value="{{ request.GET.end_date }}">
-      </div>
-      <div class="col-md-auto">
-        <button type="submit" class="btn btn-primary mt-4">Filter</button>
-      </div>
-      <div class="col-md-auto ">
-        <button type="button" id="reset" class="btn btn-danger mt-4">Reset</button>
-      </div>
-  </form>
-<div class="col-md-auto">
-    <button type="button" class="btn btn-primary mt-4" id="export">Export</a>
-  </div>
-    <table class="table table-bordered table-striped">
-      
-      <thead class="thead-dark mt-4" style="margin-top: 30px;">
-        <tr>
-          <th>#</th>
-          <th>Title</th>
-          <th>Started Date</th>
-          <th>End Date</th>
-          <th>Due Date</th>
-          <th>Status</th>
-          <th>Total Hours</th>
-        </tr>
-      </thead>
-      <tbody>
-       {% if logs %}
-    {% for timelog in logs %}
-        <tr>
-            {% if timelog.task %}
-                <td>{{ forloop.counter }}</td>
-                <td>{{ timelog.task.title|default_if_none:"-" }}</td>
-                <td>{{ timelog.start_time|date:"Y-m-d H:i:s"|default_if_none:"-" }}</td>
-                <td>{{ timelog.end_time|date:"Y-m-d H:i:s"|default_if_none:"-" }}</td>
-                <td>{{ timelog.task.due_date|date:"Y-m-d" | default_if_none:"-" }}</td>  <!-- Fixed -->
-                <td>{{ timelog.task.status|default_if_none:"-" }}</td>
-                <td>{{ timelog.get_total_time }}</td>
-            {% else %}
-                <td>{{ forloop.counter }}</td>
-                <td>{{ timelog.sub_task.title|default_if_none:"-" }}</td>
-                <td>{{ timelog.start_time|date:"Y-m-d H:i:s"|default_if_none:"-" }}</td>
-                <td>{{ timelog.end_time|date:"Y-m-d H:i:s"|default_if_none:"-" }}</td>
-                <td>{{ timelog.sub_task.task.due_date|date:"Y-m-d"|default_if_none:"-" }}</td>  <!-- Fixed -->
-                <td>{{ timelog.sub_task.status|default_if_none:"-" }}</td>
-                <td>{{ timelog.get_total_time }}</td>
-            {% endif %}
-        </tr>
-    {% endfor %}
-{% else %}
-    <tr>
-        <td colspan="7" style="text-align: center;">
-            <p>No Logs available.</p>
-        </td>
-    </tr>
-{% endif %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">All Time Logs</h2>
+    </div>
+    
+    <form method="get" class="row g-3 align-items-end">
+        <div class="col-md-3">
+            <label for="start_date" class="form-label">Start Date</label>
+            <input type="date" class="form-control" id="start_date" name="start_date" value="{{ request.GET.start_date }}">
+        </div>
+        <div class="col-md-3">
+            <label for="end_date" class="form-label">End Date</label>
+            <input type="date" class="form-control" id="end_date" name="end_date" value="{{ request.GET.end_date }}">
+        </div>
+        <div class="col-md-6 d-flex gap-2">
+            <button type="submit" class="btn btn-primary">Filter</button>
+            <button type="button" id="reset" class="btn btn-danger">Reset</button>
+            <button type="button" class="btn btn-info" id="export">Export</button>
+        </div>
+    </form>
 
-        </tbody>
-      </table>
+    <div class="table-responsive mt-4">
+        <table class="table table-hover table-bordered shadow-sm">
+            <thead class="table-dark text-center">
+                <tr>
+                    <th>#</th>
+                    <th>Title</th>
+                    <th>Started Date</th>
+                    <th>End Date</th>
+                    <th>Due Date</th>
+                    <th>Status</th>
+                    <th>Total Hours</th>
+                </tr>
+            </thead>
+            <tbody class="text-center align-middle">
+                {% if logs %}
+                    {% for timelog in logs %}
+                        <tr>
+                            {% if timelog.task %}
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ timelog.task.title|default_if_none:"-" }}</td>
+                                <td>{{ timelog.start_time|date:"Y-m-d H:i:s"|default_if_none:"-" }}</td>
+                                <td>{{ timelog.end_time|date:"Y-m-d H:i:s"|default_if_none:"-" }}</td>
+                                <td>{{ timelog.task.due_date|date:"Y-m-d"|default_if_none:"-" }}</td>
+                                <td><span class="badge bg-info">{{ timelog.task.status|default_if_none:"-" }}</span></td>
+                                <td>{{ timelog.get_total_time }}</td>
+                            {% else %}
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ timelog.sub_task.title|default_if_none:"-" }}</td>
+                                <td>{{ timelog.start_time|date:"Y-m-d H:i:s"|default_if_none:"-" }}</td>
+                                <td>{{ timelog.end_time|date:"Y-m-d H:i:s"|default_if_none:"-" }}</td>
+                                <td>{{ timelog.sub_task.task.due_date|date:"Y-m-d"|default_if_none:"-" }}</td>
+                                <td><span class="badge bg-warning">{{ timelog.sub_task.status|default_if_none:"-" }}</span></td>
+                                <td>{{ timelog.get_total_time }}</td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted">No Logs available.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
 
-      <script>
-        document.getElementById('reset').addEventListener('click', function() {
-          document.getElementById('start_date').value = '';
-          document.getElementById('end_date').value = '';
-          let url = new URL(window.location);
-          url.searchParams.delete('start_date');
-          url.searchParams.delete('end_date');
-          window.location.href = url.toString();
-        });
-        document.getElementById('export').addEventListener('click', function() {
-        console.log('Export button clicked');
+<script>
+    document.getElementById('reset').addEventListener('click', function() {
+        document.getElementById('start_date').value = '';
+        document.getElementById('end_date').value = '';
+        let url = new URL(window.location);
+        url.searchParams.delete('start_date');
+        url.searchParams.delete('end_date');
+        window.location.href = url.toString();
+    });
+    
+    document.getElementById('export').addEventListener('click', function() {
         const url = new URL(window.location.href);
         url.searchParams.set('export', 'true');
         window.location.href = url.toString();
-        });
-      </script>
+    });
+</script>
 {% endblock %}

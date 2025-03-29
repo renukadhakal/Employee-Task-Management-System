@@ -1,34 +1,48 @@
 {% extends 'base.html' %}
-{% block content %}
-{% if request.user.role == 'admin' %}
-  <div><a href="{% url 'task:create_holiday' %}" class="btn btn-primary">Add Holiday</a></div>
-{% endif %}
-<table class="table">
-    <thead>
-      <tr>
-        <th scope="col">ID</th>
-        <th scope="col">Title</th>
-        <th scope="col">Date</th>
-        {% if request.user.role == 'admin' %}
-          <th>Actions</th>
-        {% endif %}
 
-      </tr>
-    </thead>
-    <tbody>
-      {% for holiday in holidays %}
-      <tr>
-        <th scope="row">{{holiday.id}}</th>
-        <td>{{holiday.title}}</td>
-        <td>{{holiday.date}}</td>
-        {% if request.user.role == 'admin' %}
-          <td>
-              <a href="{% url 'task:edit_holiday' holiday.id %}" class="btn btn-primary">Update Holiday</a>
-              <a href="{% url 'task:delete_holiday' holiday.id %}" class="btn btn-primary">Delete Holiday</a>
-          </td>
-         {% endif %}
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+{% block content %}
+<div class="container mt-4">
+    {% if request.user.role == 'admin' %}
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="text-primary">Holiday List</h2>
+            <a href="{% url 'task:create_holiday' %}" class="btn btn-success">Add Holiday</a>
+        </div>
+    {% else %}
+        <h2 class="text-primary text-center mb-3">Holiday List</h2>
+    {% endif %}
+    
+    <div class="table-responsive">
+        <table class="table table-striped table-hover shadow-sm">
+            <thead class="bg-primary text-white">
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Title</th>
+                    <th scope="col">Date</th>
+                    {% if request.user.role == 'admin' %}
+                        <th scope="col">Actions</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for holiday in holidays %}
+                    <tr>
+                        <th scope="row">{{ holiday.id }}</th>
+                        <td>{{ holiday.title }}</td>
+                        <td>{{ holiday.date }}</td>
+                        {% if request.user.role == 'admin' %}
+                            <td>
+                                <a href="{% url 'task:edit_holiday' holiday.id %}" class="btn btn-warning btn-sm">Update</a>
+                                <a href="{% url 'task:delete_holiday' holiday.id %}" class="btn btn-danger btn-sm">Delete</a>
+                            </td>
+                        {% endif %}
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center text-muted">No holidays found</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 {% endblock content %}

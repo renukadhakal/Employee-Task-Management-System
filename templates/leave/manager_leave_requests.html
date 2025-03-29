@@ -13,6 +13,7 @@
                     <tr>
                         <th>Employee</th>
                         <th>Reason</th>
+                        <th>Leave type</th>
                         <th>Start Date</th>
                         <th>End Date</th>
                         <th>Applied On</th>
@@ -25,6 +26,7 @@
                     <tr>
                         <td>{{ leave.user.username }}</td>
                         <td>{{ leave.reason }}</td>
+                        <td>{{ leave.leave_type }}</td>
                         <td>{{ leave.start_at.date }}</td>
                         <td>{{ leave.end_at.date }}</td>
                         <td>{{ leave.applied_at }}</td>

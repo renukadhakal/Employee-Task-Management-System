@@ -1,75 +1,101 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2 class="mb-0">Your Leave Requests</h2>
-        <p>You have <strong>{{ remaining_leave }}</strong> leave requests remaining.</p>
-        <div class="row">
-            <div class="col-sm">
-                <a href="{% url 'leave:leave_request_create' %}"
-                    class="btn btn-primary {% if remaining_leave == 0 %}disabled{% endif %}">Apply for Leave</a>
-            </div>
-            <div class="col-sm">
-                <button id="export" class="btn btn-primary">Export</a>
-            </div>
+<div class="container mt-5">
+    <div class="card shadow-lg p-4 border-0 rounded-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="text-primary fw-bold">Your Leave Requests</h2>
         </div>
-    </div>
-     {% if messages %}
-            <div class="alert alert-dismissible fade show">
-                {% for message in messages %}
-                    <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-success{% endif %}">
-                        {{ message }}
+        
+        <div class="d-flex justify-content-between align-items-center bg-light p-3 rounded mb-4">
+            <h5 class="fw-semibold mb-0">Remaining Leaves:</h5>
+            <div class="d-flex gap-3">
+                {% for leave_type, remaining in remaining_leaves.items %}
+                    <div class="badge bg-primary text-white px-4 py-2 rounded-pill shadow-sm">
+                        {{ leave_type|title }}: <strong>{{ remaining }}</strong>
                     </div>
                 {% endfor %}
             </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-sm">
+                <a href="{% url 'leave:leave_request_create' %}" 
+                   class="btn btn-success w-100 fw-semibold py-2 {% if remaining_leave == 0 %}disabled{% endif %}">
+                    <i class="fas fa-plus-circle"></i> Apply for Leave
+                </a>
+            </div>
+            <div class="col-sm">
+                <button id="export" class="btn btn-info w-100 fw-semibold py-2 text-white">
+                    <i class="fas fa-file-export"></i> Export
+                </button>
+            </div>
+        </div>
+        
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-success{% endif %} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
         {% endif %}
-    {% if leave_requests %}
-        <div class="table-responsive">
-            <table class="table table-hover table-bordered shadow-sm">
-                <thead class="table-dark text-center">
-                    <tr>
-                        <th>Start Date</th>
-                        <th>End Date</th>
-                        <th>Reason</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="text-center align-middle">
-                    {% for leave in leave_requests %}
-                    <tr>
-                        <td>{{ leave.start_at.date }}</td>
-                        <td>{{ leave.end_at.date }}</td>
-                        <td>{{ leave.reason }}</td>
-                        <td>
-                           <span class="badge 
-                                {% if leave.status == 'pending' %} bg-warning text-dark
-                                {% elif leave.status == 'approved' %} bg-success
-                                {% else %} bg-danger {% endif %}">
-                                {{ leave.status|title }}
-                            </span>
-                        </td>
-                        <td>
-                            <div class="d-flex justify-content-center gap-2">
-                                <a href="{% url 'leave:leave_request_edit' leave.pk %}" class="btn btn-warning btn-sm">Edit</a>
-                                <form method="post" action="{% url 'leave:leave_request_delete' leave.pk %}" class="d-inline">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this request?');">Delete</button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    {% else %}
-        <div class="alert alert-info text-center" role="alert">
-            No leave requests found.
-        </div>
-    {% endif %}
+
+        {% if leave_requests %}
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered text-center shadow-sm rounded-3 overflow-hidden">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Reason</th>
+                            <th>Status</th>
+                            <th>Leave type</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for leave in leave_requests %}
+                        <tr>
+                            <td>{{ leave.start_at.date }}</td>
+                            <td>{{ leave.end_at.date }}</td>
+                            <td>{{ leave.reason }}</td>
+                            <td>
+                               <span class="badge px-3 py-2 
+                                    {% if leave.status == 'pending' %} bg-warning text-dark
+                                    {% elif leave.status == 'approved' %} bg-success
+                                    {% else %} bg-danger {% endif %}">
+                                    {{ leave.status|title }}
+                                </span>
+                            </td>
+                            <td>
+                                {{leave.leave_type}}
+                            <td>
+                                <div class="d-flex justify-content-center gap-2">
+                                    <a href="{% url 'leave:leave_request_edit' leave.pk %}" class="btn btn-warning btn-sm fw-semibold">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </a>
+                                    <form method="post" action="{% url 'leave:leave_request_delete' leave.pk %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger btn-sm fw-semibold" onclick="return confirm('Are you sure you want to delete this request?');">
+                                            <i class="fas fa-trash-alt"></i> Delete
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-info text-center" role="alert">
+                No leave requests found.
+            </div>
+        {% endif %}
+    </div>
 </div>
+
 <script>
     document.getElementById('export').addEventListener('click', function() {
         const url = new URL(window.location.href);

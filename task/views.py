@@ -18,6 +18,9 @@ from django.http import HttpResponse
 import csv
 from django.core.serializers.json import DjangoJSONEncoder
 from django.utils import timezone
+from django.db.models.functions import TruncMonth
+from collections import OrderedDict
+from dateutil.relativedelta import relativedelta
 
 
 class DateTimeEncoder(json.JSONEncoder):
@@ -263,10 +266,10 @@ def holiday_create(request):
 
 @login_required(login_url="/login")
 def render_calendar(request):
-    holidays = [
-        date.strftime("%Y-%m-%d")
-        for date in list(Holiday.objects.all().values_list("date", flat=True))
-    ]
+    holidays = {
+        holiday.date.strftime("%Y-%m-%d"): holiday.title
+        for holiday in Holiday.objects.all()
+    }
 
     holiday_form = HolidayForm()
 
@@ -277,21 +280,34 @@ def render_calendar(request):
     )
 
 
+def get_month_range(start_date, end_date):
+    months = OrderedDict()
+    current = start_date.replace(day=1)
+    while current <= end_date:
+        months[current.strftime("%Y-%m")] = 0
+        current += relativedelta(months=1)
+    return months
+
+
 @login_required(login_url="/login")
 def dashboard(request):
-    start_date_str = request.GET.get("start_date", datetime.now().strftime("%Y-%m-%d"))
-    end_date_str = request.GET.get(
-        "end_date", (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
-    )
+    today = datetime.now().date()
+
+    # Show last 3 full months including current
+    start_date = today.replace(day=1) - relativedelta(months=2)
+    end_date = today
+
+    # Allow custom date range via query params
+    start_date_str = request.GET.get("start_date", start_date.strftime("%Y-%m-%d"))
+    end_date_str = request.GET.get("end_date", end_date.strftime("%Y-%m-%d"))
 
     try:
-        start_date = datetime.strptime(start_date_str, "%Y-%m-%d")
-        end_date = datetime.strptime(end_date_str, "%Y-%m-%d")
+        start_date = datetime.strptime(start_date_str, "%Y-%m-%d").date()
+        end_date = datetime.strptime(end_date_str, "%Y-%m-%d").date()
     except ValueError:
-        start_date = datetime.now()
-        end_date = datetime.now() - timedelta(days=7)
+        start_date = today.replace(day=1) - relativedelta(months=2)
+        end_date = today
 
-    # Fetch data based on user role
     if request.user.role == User.Role_Type.ADMIN:
         leave_queryset = LeaveRequest.objects.all()
         time_queryset = TimeLog.objects.all()
@@ -302,48 +318,58 @@ def dashboard(request):
         leave_queryset = LeaveRequest.objects.filter(user=request.user)
         time_queryset = TimeLog.objects.filter(user=request.user)
 
-    # Filter leave requests by date range
+    # Overlap filtering
     leave_queryset = leave_queryset.filter(
-        start_at__gte=start_date, end_at__lte=end_date
+        end_at__gte=start_date, start_at__lte=end_date
     )
 
-    leave_data = (
-        leave_queryset.extra({"day": "DATE(start_at)"})
-        .values("day")
-        .annotate(count=Count("id"))
-        .order_by("day")
-    )
-
-    # leave_labels = [entry["day"].strftime("%Y-%m-%d") for entry in leave_data]
-    leave_labels = [entry["day"].strftime("%Y-%m-%d") for entry in leave_data]
-
-    leave_values = [entry["count"] for entry in leave_data]
-
-    # Filter time logs by date range
     time_queryset = time_queryset.filter(
-        start_time__gte=start_date, end_time__lte=end_date
+        end_time__gte=start_date, start_time__lte=end_date
     )
 
+    # Generate a complete month list
+    month_range = get_month_range(start_date, end_date)
+
+    # Leave Data (Monthly Group)
+    leave_data = (
+        leave_queryset.annotate(month=TruncMonth("start_at"))
+        .values("month")
+        .annotate(count=Count("id"))
+        .order_by("month")
+    )
+
+    leave_map = month_range.copy()
+    for entry in leave_data:
+        label = entry["month"].strftime("%Y-%m")
+        leave_map[label] = entry["count"]
+
+    leave_labels = list(leave_map.keys())
+    leave_values = list(leave_map.values())
+
+    # TimeLog Data (Monthly Group)
     time_data = (
         time_queryset.annotate(
             duration=ExpressionWrapper(
                 F("end_time") - F("start_time"), output_field=fields.DurationField()
-            )
+            ),
+            month=TruncMonth("start_time"),
         )
-        .extra({"day": "DATE(start_time)"})
-        .values("day")
+        .values("month")
         .annotate(total_hours=Sum("duration"))
-        .order_by("day")
+        .order_by("month")
     )
 
-    time_labels = [entry["day"].strftime("%Y-%m-%d") for entry in time_data]
+    time_map = month_range.copy()
+    for entry in time_data:
+        label = entry["month"].strftime("%Y-%m")
+        hours = (
+            entry["total_hours"].total_seconds() / 3600 if entry["total_hours"] else 0
+        )
+        time_map[label] = round(hours, 2)
 
-    time_values = [
-        entry["total_hours"].total_seconds() / 3600 if entry["total_hours"] else 0
-        for entry in time_data
-    ]
+    time_labels = list(time_map.keys())
+    time_values = list(time_map.values())
 
-    # Context dictionary (No JSON serialization here)
     context = {
         "leave_labels": json.dumps(leave_labels),
         "leave_values": json.dumps(leave_values),
@@ -352,8 +378,6 @@ def dashboard(request):
         "start_date": json.dumps(start_date.strftime("%Y-%m-%d")),
         "end_date": json.dumps(end_date.strftime("%Y-%m-%d")),
     }
-
-    print(context, "context")
 
     return render(request, "account/dashboard.html", context)
 

@@ -1,5 +1,6 @@
-
 {% extends 'base.html' %}
+{% load static %}
+
 {% block content %}
 
 {% include 'calendar/add_holiday.html' %}
@@ -21,14 +22,12 @@
   display: flex;
   align-items: center;
 }
-
 .header-display p {
   color: var(--accent);
   margin: 5px;
   font-size: 1.2rem;
   word-spacing: 0.5rem;
 }
-
 pre {
   padding: 10px;
   margin: 0;
@@ -36,14 +35,12 @@ pre {
   font-size: 1.2rem;
   color: var(--accent);
 }
-
 .days,
 .week {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   margin: auto;
   padding: 0 20px;
-  justify-content: space-between;
 }
 .week div,
 .days div {
@@ -51,7 +48,7 @@ pre {
   justify-content: center;
   align-items: center;
   height: 3rem;
-  width: 3em;
+  width: 3rem;
   border-radius: 100%;
 }
 .days div:hover {
@@ -63,9 +60,8 @@ pre {
   opacity: 0.5;
 }
 .current-date {
-  background-color: var(--accent);
-  color: black;
   background-color: #3EB8AA;
+  color: black;
   border-radius: 30%;
 }
 .days .current-date:hover {
@@ -79,152 +75,140 @@ pre {
 }
 </style>
 
-
-
-
 <div class="container">
-    <div class="calendar">
-      <div class="header">
-        <pre class="left">◀</pre>
-        <div class="header-display">
-          <p class="display">""</p>
-        </div>
-        <pre class="right">▶</pre>
-    </div>
-      <div class="week">
-        <div>Su</div>
-        <div>Mo</div>
-        <div>Tu</div>
-        <div>We</div>
-        <div>Th</div>
-        <div>Fr</div>
-        <div>Sa</div>
+  <div class="calendar">
+    <div class="header">
+      <pre class="left">◀</pre>
+      <div class="header-display">
+        <p class="display">""</p>
       </div>
-      <div class="days"></div>
+      <pre class="right">▶</pre>
     </div>
-    <div class="display-selected">
-      <p class="selected"></p>
+    <div class="week">
+      <div>Su</div>
+      <div>Mo</div>
+      <div>Tu</div>
+      <div>We</div>
+      <div>Th</div>
+      <div>Fr</div>
+      <div>Sa</div>
     </div>
+    <div class="days"></div>
   </div>
+  <div class="display-selected">
+    <p class="selected"></p>
+  </div>
+</div>
 
-  <script>
-    let display = document.querySelector(".display");
-    let days = document.querySelector(".days");
-    let previous = document.querySelector(".left");
-    let next = document.querySelector(".right");
-    let selected = document.querySelector(".selected");
-    let holidays = JSON.parse('{{ holidays | safe }}');
-    let userType = '{{ request.user.role }}';
-    console.log(userType,'userType');
 
-    let date = new Date();
 
-    let year = date.getFullYear();
-    let month = date.getMonth();
+<script>
+let display = document.querySelector(".display");
+let days = document.querySelector(".days");
+let previous = document.querySelector(".left");
+let next = document.querySelector(".right");
+let selected = document.querySelector(".selected");
+let holidays = JSON.parse('{{ holidays|safe }}');
+let userType = '{{ request.user.role }}';
 
-    function displayCalendar() {
-    days.innerHTML = "";
+let date = new Date();
+let year = date.getFullYear();
+let month = date.getMonth();
 
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
-    const firstDayIndex = firstDay.getDay();
-    const numberOfDays = lastDay.getDate();
+function displayCalendar() {
+  days.innerHTML = "";
 
-    let formattedDate = date.toLocaleString("en-US", { month: "long", year: "numeric" });
-    display.innerHTML = `${formattedDate}`;
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+  const firstDayIndex = firstDay.getDay();
+  const numberOfDays = lastDay.getDate();
 
-    for (let x = 0; x < firstDayIndex; x++) {
-        const div = document.createElement("div");
-        days.appendChild(div);
+  let formattedDate = date.toLocaleString("en-US", { month: "long", year: "numeric" });
+  display.innerHTML = `${formattedDate}`;
+
+  for (let x = 0; x < firstDayIndex; x++) {
+    const div = document.createElement("div");
+    days.appendChild(div);
+  }
+
+  for (let i = 1; i <= numberOfDays; i++) {
+    let div = document.createElement("div");
+    let currentDate = new Date(year, month, i);
+    let formattedDate = currentDate.toLocaleDateString('en-CA'); // YYYY-MM-DD
+
+    div.dataset.date = formattedDate;
+    div.innerHTML = i;
+
+    if (holidays.hasOwnProperty(formattedDate)) {
+      div.classList.add("holiday");
+      div.setAttribute("title", holidays[formattedDate]);  // Tooltip with holiday name
     }
 
-    for (let i = 1; i <= numberOfDays; i++) {
-        let div = document.createElement("div");
-        let currentDate = new Date(year, month, i);
-
-        let formattedDate = currentDate.toLocaleDateString('en-CA');
-
-        div.dataset.date = formattedDate;
-        div.innerHTML = i;
-        if (holidays.includes(formattedDate)) {
-            div.classList.add("holiday");
-        }
-        console.log(currentDate.toLocaleDateString(), 'currentDate')
-        console.log(new Date().toDateString(), 'new Date().toDateString()');
-        if (currentDate.toDateString() === new Date().toDateString()) {
-            div.classList.add("current-date");
-        }
-
-
-        days.appendChild(div);
+    if (currentDate.toDateString() === new Date().toDateString()) {
+      div.classList.add("current-date");
     }
+
+    days.appendChild(div);
+  }
 }
 
+displayCalendar();
 
-    displayCalendar();
+previous.addEventListener("click", () => {
+  days.innerHTML = "";
+  selected.innerHTML = "";
+  if (month === 0) {
+    month = 11;
+    year -= 1;
+  } else {
+    month -= 1;
+  }
+  date.setMonth(month);
+  displayCalendar();
+  displaySelected();
+});
 
-    previous.addEventListener("click", () => {
-    days.innerHTML = "";
-    selected.innerHTML = "";
+next.addEventListener("click", () => {
+  days.innerHTML = "";
+  selected.innerHTML = "";
+  if (month === 11) {
+    month = 0;
+    year += 1;
+  } else {
+    month += 1;
+  }
+  date.setMonth(month);
+  displayCalendar();
+  displaySelected();
+});
 
-    if (month < 0) {
-        month = 11;
-        year = year - 1;
-    }
+function displaySelected() {
+  const dayElements = document.querySelectorAll(".days div");
+  dayElements.forEach((day) => {
+    day.addEventListener("click", (e) => {
+      const selectedDate = e.target.dataset.date;
+      let addHolidayForm = document.querySelector("#add-holiday-form");
 
-    month = month - 1;
+      let dateInput = document.getElementById("id_date");
+      let title = addHolidayForm.querySelector("#id_title");
 
-    date.setMonth(month);
+      let formattedDate = new Date(selectedDate);
+      let dayVal = formattedDate.getDate();
+      let monthVal = formattedDate.getMonth() + 1;
+      let yearVal = formattedDate.getFullYear();
 
-    displayCalendar();
-    displaySelected();
+      formattedDate = `${yearVal}-${monthVal < 10 ? `0${monthVal}` : monthVal}-${dayVal < 10 ? `0${dayVal}` : dayVal}`;
+      dateInput.value = formattedDate;
+
+      if (userType === 'admin') {
+        let modal = new bootstrap.Modal(document.getElementById("exampleModal"));
+        modal.show();
+      }
     });
+  });
+}
 
-    next.addEventListener("click", () => {
-    days.innerHTML = "";
-    selected.innerHTML = "";
-
-    if (month > 11) {
-        month = 0;
-        year = year + 1;
-    }
-
-    month = month + 1;
-    date.setMonth(month);
-
-    displayCalendar();
-    displaySelected();
-    });
-
-    function displaySelected() {
-        const dayElements = document.querySelectorAll(".days div");
-        dayElements.forEach((day) => {
-            day.addEventListener("click", (e) => {
-              const selectedDate = e.target.dataset.date;
-              let addHolidayForm = document.querySelector("#add-holiday-form");
-              
-              let dateInput = document.getElementById("id_date");
-              let title = addHolidayForm.querySelector("#id_title");
-
-              
-              let formattedDate = new Date(selectedDate).toISOString();
-
-              let day = new Date(selectedDate).getDate();
-              let month = new Date(selectedDate).getMonth() + 1;
-              let year = new Date(selectedDate).getFullYear();
-              formattedDate = `${year}-${month < 10 ? `0${month}` : month}-${day < 10 ? `0${day}` : day}`;
-
-
-              dateInput.value = formattedDate;
-              if (userType === 'admin') {
-                document.getElementById(document.getElementById("id_date"));
-                let modal = new bootstrap.Modal(document.getElementById("exampleModal"));
-                modal.show();
-              }
-            });
-        });
-    }
-    displaySelected();
-  </script>
+displaySelected();
+</script>
 
 {% endblock %}
