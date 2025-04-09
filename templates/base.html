@@ -439,7 +439,9 @@
         </div>
 
         <!-- Content Area -->
-        <div class="col py-3">{% block content %}{% endblock content %}</div>
+       <div class="col py-3" style="height: calc(100vh - 56px); overflow-y: auto;">
+  {% block content %}{% endblock content %}
+    </div>
       </div>
     </div>
 

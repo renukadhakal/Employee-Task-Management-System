@@ -3,7 +3,11 @@
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-10">
-            <div class="card shadow-lg border-0">
+            <div class="text-end mb-3">
+                <button class="btn btn-primary" onclick="exportToPDF()">Export Report as PDF</button>
+            </div>
+
+            <div class="card shadow-lg border-0" id="pdfReport">
                 <div class="card-body text-center">
                     <!-- Profile Picture -->
                     {% if employee.image %}
@@ -23,43 +27,42 @@
                                 <span class="fw-bold">Username</span>
                                 <span>{{ employee.username }}</span>
                             </div>
-
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <span class="fw-bold">Email</span>
                                 <span>{{ employee.email }}</span>
                             </div>
-
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <span class="fw-bold">Role</span>
                                 <span>{{ employee.role }}</span>
                             </div>
-
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <span class="fw-bold">First Name</span>
                                 <span>{{ employee.first_name }}</span>
                             </div>
-
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <span class="fw-bold">Last Name</span>
                                 <span>{{ employee.last_name }}</span>
                             </div>
                         </div>
                     </div>
-                    <!-- End Profile Details -->
-                     <div class="mt-5">
-                     <h2 class="text-center ">User Analytics and Report</h2>
-                     </div>
+
+                    <!-- Report Section -->
+                    <div class="mt-5">
+                        <h2 class="text-center">User Analytics and Report</h2>
+                    </div>
+
                     {% if task_data %}
                     <div class="mt-5">
                         <h5 class="text-center">Task Completion Overview</h5>
                         <canvas id="taskChart" height="150"></canvas>
                     </div>
                     {% endif %}
+
                     <div class="mt-5">
                         <h5 class="text-center">Monthly Leave Overview</h5>
                         <canvas id="leaveChart" height="100"></canvas>
                     </div>
-                    
+
                     <div class="mt-5">
                         <h5 class="text-center">Monthly Time Log (Hours)</h5>
                         <canvas id="timeLogChart" height="100"></canvas>
@@ -69,7 +72,13 @@
         </div>
     </div>
 </div>
+
+<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- html2canvas and jsPDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 <script>
     {% if task_data %}
     const taskData = {{ task_data|safe }};
@@ -114,6 +123,7 @@
     });
     {% endif %}
 </script>
+
 <script>
     // Leave Chart
     const leaveLabels = {{ leave_labels|safe }};
@@ -141,7 +151,7 @@
         }
     });
 
-    // TimeLog Chart
+    // Time Log Chart
     const timeLabels = {{ time_labels|safe }};
     const timeValues = {{ time_values|safe }};
 
@@ -170,5 +180,40 @@
             }
         }
     });
+</script>
+
+<script>
+    async function exportToPDF() {
+        const { jsPDF } = window.jspdf;
+        const report = document.getElementById("pdfReport");
+
+        const canvas = await html2canvas(report, { scale: 2 });
+        const imgData = canvas.toDataURL("image/png");
+
+        const pdf = new jsPDF("p", "mm", "a4");
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
+
+        const imgProps = pdf.getImageProperties(imgData);
+        const pdfWidth = pageWidth;
+        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+        let position = 0;
+        if (pdfHeight > pageHeight) {
+            let heightLeft = pdfHeight;
+            let y = 0;
+
+            while (heightLeft > 0) {
+                pdf.addImage(imgData, "PNG", 0, y, pdfWidth, pdfHeight);
+                heightLeft -= pageHeight;
+                y -= pageHeight;
+                if (heightLeft > 0) pdf.addPage();
+            }
+        } else {
+            pdf.addImage(imgData, "PNG", 0, position, pdfWidth, pdfHeight);
+        }
+
+        pdf.save("employee_{{ employee.username }}_report.pdf");
+    }
 </script>
 {% endblock %}

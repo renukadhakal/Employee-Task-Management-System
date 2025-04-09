@@ -210,7 +210,7 @@ def time_log_list(request):
                     log.end_time,
                     log.get_total_time,
                     log.task.priority,
-                    log.task.category.category_name if log.task.category else "N/A",
+                    log.task.category.name if log.task.category else "N/A",
                     log.task.status,
                 ]
             )

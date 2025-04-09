@@ -1,41 +1,51 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h2>Dashboard</h2>
+<div class="container my-5">
+  <h2 class="mb-4 text-center fw-bold" style="color: #4b6cb7;">Dashboard</h2>
 
-<form method="get" class="mb-4">
-  <label for="start_date">Start Date:</label>
-  <input type="date" name="start_date" value="{{ start_date }}">
-  
-  <label for="end_date">End Date:</label>
-  <input type="date" name="end_date" value="{{ end_date }}">
+  <form method="get" class="row g-3 align-items-end mb-5 bg-light p-4 rounded shadow-sm">
+    <div class="col-md-3">
+      <label for="start_date" class="form-label">Start Date:</label>
+      <input type="date" class="form-control" name="start_date" value="{{ start_date }}">
+    </div>
 
-  <label for="user">User:</label>
-  <select name="user">
-    <option value="">All Users</option>
-    {% for user in users %}
-      <option value="{{ user.id }}" {% if request.GET.user == user.id|stringformat:"s" %}selected{% endif %}>
-        {{ user.username }}
-      </option>
-    {% endfor %}
-  </select>
+    <div class="col-md-3">
+      <label for="end_date" class="form-label">End Date:</label>
+      <input type="date" class="form-control" name="end_date" value="{{ end_date }}">
+    </div>
 
-  <button type="submit">Filter</button>
-</form>
+    <div class="col-md-3">
+      <label for="user" class="form-label">User:</label>
+      <select class="form-select" name="user">
+        <option value="">All Users</option>
+        {% for user in users %}
+          <option value="{{ user.id }}" {% if request.GET.user == user.id|stringformat:"s" %}selected{% endif %}>
+            {{ user.username }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
 
-<!-- Leave Chart -->
-<div class="card mb-5">
-  <div class="card-header">Leave Summary</div>
-  <div class="card-body">
-    <canvas id="leaveChart" height="100"></canvas>
+    <div class="col-md-3 text-end">
+      <button type="submit" class="btn btn-primary px-4">Filter</button>
+    </div>
+  </form>
+
+  <!-- Leave Chart -->
+  <div class="card mb-5 shadow-sm border-0">
+    <div class="card-header text-white fw-semibold" style="background-color: #00b7aa;">Leave Summary</div>
+    <div class="card-body">
+      <canvas id="leaveChart" height="100"></canvas>
+    </div>
   </div>
-</div>
 
-<!-- Time Log Chart -->
-<div class="card">
-  <div class="card-header">Time Log Summary</div>
-  <div class="card-body">
-    <canvas id="timeLogChart" height="100"></canvas>
+  <!-- Time Log Chart -->
+  <div class="card shadow-sm border-0">
+    <div class="card-header text-white fw-semibold" style="background-color: #00b7aa;">Time Log Summary</div>
+    <div class="card-body">
+      <canvas id="timeLogChart" height="100"></canvas>
+    </div>
   </div>
 </div>
 
@@ -54,7 +64,8 @@
       plugins: {
         title: {
           display: true,
-          text: "Leaves by Month (Stacked by Type)"
+          text: "Leaves by Month (Stacked by Type)",
+          font: { size: 18 }
         }
       },
       scales: {
@@ -83,7 +94,7 @@
         {
           label: "Holiday Hours",
           data: {{ holiday_hours|safe }},
-          backgroundColor: "red",
+          backgroundColor: "rgba(255, 99, 132, 0.8)",
           stack: "timelog"
         }
       ]
@@ -93,7 +104,8 @@
       plugins: {
         title: {
           display: true,
-          text: "Time Logs by Month (Stacked)"
+          text: "Time Logs by Month (Stacked)",
+          font: { size: 18 }
         }
       },
       scales: {
