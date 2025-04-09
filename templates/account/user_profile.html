@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow-lg border-0">
+                <div class="card-body text-center">
+                    <!-- Profile Picture -->
+                    {% if employee.image %}
+                    <div class="mb-4">
+                        <img src="{{ employee.image.url }}" alt="Profile Image" class="rounded-circle" style="width: 120px; height: 120px;">
+                    </div>
+                    {% endif %}
+
+                    <!-- Name and Username -->
+                    <h3 class="fw-bold">{{ employee.first_name }} {{ employee.last_name }}</h3>
+                    <p class="text-muted">@{{ employee.username }}</p>
+
+                    <!-- Profile Details -->
+                    <div class="row justify-content-center mt-4">
+                        <div class="col-md-6">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="fw-bold">Username</span>
+                                <span>{{ employee.username }}</span>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="fw-bold">Email</span>
+                                <span>{{ employee.email }}</span>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="fw-bold">Role</span>
+                                <span>{{ employee.role }}</span>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="fw-bold">First Name</span>
+                                <span>{{ employee.first_name }}</span>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="fw-bold">Last Name</span>
+                                <span>{{ employee.last_name }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- End Profile Details -->
+                     <div class="mt-5">
+                     <h2 class="text-center ">User Analytics and Report</h2>
+                     </div>
+                    {% if task_data %}
+                    <div class="mt-5">
+                        <h5 class="text-center">Task Completion Overview</h5>
+                        <canvas id="taskChart" height="150"></canvas>
+                    </div>
+                    {% endif %}
+                    <div class="mt-5">
+                        <h5 class="text-center">Monthly Leave Overview</h5>
+                        <canvas id="leaveChart" height="100"></canvas>
+                    </div>
+                    
+                    <div class="mt-5">
+                        <h5 class="text-center">Monthly Time Log (Hours)</h5>
+                        <canvas id="timeLogChart" height="100"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    {% if task_data %}
+    const taskData = {{ task_data|safe }};
+    const labels = taskData.map(t => t.title);
+    const daysTaken = taskData.map(t => t.days_taken);
+    const overdueDays = taskData.map(t => t.overdue_days);
+
+    const ctx = document.getElementById('taskChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Days Taken',
+                    data: daysTaken.map((d, i) => d - overdueDays[i]),
+                    backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                },
+                {
+                    label: 'Overdue Days',
+                    data: overdueDays,
+                    backgroundColor: 'rgba(255, 99, 132, 0.7)',
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                x: {
+                    stacked: true
+                },
+                y: {
+                    stacked: true,
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Days'
+                    }
+                }
+            }
+        }
+    });
+    {% endif %}
+</script>
+<script>
+    // Leave Chart
+    const leaveLabels = {{ leave_labels|safe }};
+    const leaveValues = {{ leave_values|safe }};
+
+    const leaveCtx = document.getElementById('leaveChart').getContext('2d');
+    new Chart(leaveCtx, {
+        type: 'bar',
+        data: {
+            labels: leaveLabels,
+            datasets: [{
+                label: 'Leave Count',
+                data: leaveValues,
+                backgroundColor: 'rgba(75, 192, 192, 0.7)'
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: { display: true, text: "Leaves" }
+                }
+            }
+        }
+    });
+
+    // TimeLog Chart
+    const timeLabels = {{ time_labels|safe }};
+    const timeValues = {{ time_values|safe }};
+
+    const timeCtx = document.getElementById('timeLogChart').getContext('2d');
+    new Chart(timeCtx, {
+        type: 'line',
+        data: {
+            labels: timeLabels,
+            datasets: [{
+                label: 'Total Hours',
+                data: timeValues,
+                backgroundColor: 'rgba(255, 159, 64, 0.5)',
+                borderColor: 'rgba(255, 159, 64, 1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.3,
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: { display: true, text: "Hours" }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

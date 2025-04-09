@@ -45,7 +45,7 @@ class Task(models.Model):
     )
     file = models.FileField(upload_to="task/", null=True, blank=True)
     task_upload_file = models.FileField(upload_to="task/", null=True, blank=True)
-
+    completed_at = models.DateTimeField(null=True, blank=True)
     def __str__(self):
         return self.title
 
@@ -67,7 +67,7 @@ class SubTask(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="PENDING")
     file = models.FileField(upload_to="sub_task/", null=True, blank=True)
     task_upload_file = models.FileField(upload_to="sub_task/", null=True, blank=True)
-
+    completed_at = models.DateTimeField(null=True, blank=True)
     def __str__(self):
         return f"{self.title} (Sub-task of {self.task.title})"
 
@@ -86,6 +86,7 @@ class TimeLog(models.Model):
     )
     start_time = models.DateTimeField(auto_now_add=True)
     end_time = models.DateTimeField(blank=True, null=True)
+    is_holiday = models.BooleanField(default=False)
     # duration = models.DurationField(blank=True, null=True)
 
     def __str__(self):

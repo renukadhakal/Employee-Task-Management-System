@@ -21,6 +21,9 @@
         <td>{{user.username}}</td>
         <td>{{user.role}}</td>
         <td>{{user.report_to}}</td>
+        
+        <td><a href="{% url 'account:user-profile' user.id %}" class="btn btn-primary">View User</a></td>
+
         <td><a href="{% url 'account:admin-user-update' user.id %}" class="btn btn-primary">Update User</a></td>
         <td><a href="{% url 'account:admin-user-delete' user.id %}" class="btn btn-primary">Delete User</a></td>
       </tr>

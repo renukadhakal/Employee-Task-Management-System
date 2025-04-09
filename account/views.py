@@ -15,6 +15,13 @@ from .models import User
 from django.urls import reverse_lazy
 from .services.send_registration_mail import send_registration_email
 from task.models import Task
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
+from django.db.models import Count, Sum, F, ExpressionWrapper, fields
+from django.db.models.functions import TruncMonth
+import json
+from task.models import Task, TimeLog
+from leave.models import LeaveRequest
 
 
 # Create your views here.
@@ -40,7 +47,8 @@ def userLogin(request):
 
 @login_required(login_url="/login")
 def index(request):
-    return render(request, "index.html")
+    return redirect("task:dashboard")
+    
 
 
 def userLogout(request):
@@ -181,3 +189,103 @@ def transfer_employee(request):
         form = EmployeeTransferForm()
 
     return render(request, "account/transfer_employee.html", {"form": form})
+
+
+def get_month_range(start_date, end_date):
+    result = {}
+    current = start_date.replace(day=1)
+    while current <= end_date:
+        result[current.strftime("%Y-%m")] = 0
+        current += relativedelta(months=1)
+    return result
+
+
+@login_required(login_url="/login")
+def get_user_profile(request, pk):
+    user = get_object_or_404(User, pk=pk)
+
+    # Task Data
+    tasks = Task.objects.filter(
+        assigned_to=user, status="COMPLETED", completed_at__isnull=False
+    )
+    task_data = []
+    for task in tasks:
+        if task.completed_at and task.created_at:
+            days_taken = (task.completed_at.date() - task.created_at.date()).days
+            overdue_days = 0
+            if task.due_date and task.completed_at.date() > task.due_date:
+                overdue_days = (task.completed_at.date() - task.due_date).days
+
+            task_data.append(
+                {
+                    "title": task.title,
+                    "days_taken": days_taken,
+                    "overdue_days": overdue_days,
+                }
+            )
+
+    # Date range: last 3 full months including current
+    today = datetime.now().date()
+    start_date = today.replace(day=1) - relativedelta(months=2)
+    end_date = today
+
+    month_range = get_month_range(start_date, end_date)
+
+    # Leave Data
+    leave_queryset = LeaveRequest.objects.filter(
+        user=user, end_at__gte=start_date, start_at__lte=end_date
+    )
+    leave_data = (
+        leave_queryset.annotate(month=TruncMonth("start_at"))
+        .values("month")
+        .annotate(count=Count("id"))
+        .order_by("month")
+    )
+
+    leave_map = month_range.copy()
+    for entry in leave_data:
+        label = entry["month"].strftime("%Y-%m")
+        leave_map[label] = entry["count"]
+
+    leave_labels = list(leave_map.keys())
+    leave_values = list(leave_map.values())
+
+    # TimeLog Data
+    time_queryset = TimeLog.objects.filter(
+        user=user, end_time__gte=start_date, start_time__lte=end_date
+    )
+    time_data = (
+        time_queryset.annotate(
+            duration=ExpressionWrapper(
+                F("end_time") - F("start_time"), output_field=fields.DurationField()
+            ),
+            month=TruncMonth("start_time"),
+        )
+        .values("month")
+        .annotate(total_hours=Sum("duration"))
+        .order_by("month")
+    )
+
+    time_map = month_range.copy()
+    for entry in time_data:
+        label = entry["month"].strftime("%Y-%m")
+        hours = (
+            entry["total_hours"].total_seconds() / 3600 if entry["total_hours"] else 0
+        )
+        time_map[label] = round(hours, 2)
+
+    time_labels = list(time_map.keys())
+    time_values = list(time_map.values())
+
+    context = {
+        "employee": user,
+        "task_data": task_data,
+        "leave_labels": json.dumps(leave_labels),
+        "leave_values": json.dumps(leave_values),
+        "time_labels": json.dumps(time_labels),
+        "time_values": json.dumps(time_values),
+        "start_date": json.dumps(start_date.strftime("%Y-%m-%d")),
+        "end_date": json.dumps(end_date.strftime("%Y-%m-%d")),
+    }
+
+    return render(request, "account/user_profile.html", context)

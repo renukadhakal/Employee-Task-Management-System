@@ -13,7 +13,7 @@ from account.models import User
 import json
 from datetime import datetime, timedelta, date
 from django.db.models import Count, Sum, F, ExpressionWrapper, fields
-from leave.models import LeaveRequest
+from leave.models import LeaveRequest, LeaveType
 from django.http import HttpResponse
 import csv
 from django.core.serializers.json import DjangoJSONEncoder
@@ -21,6 +21,7 @@ from django.utils import timezone
 from django.db.models.functions import TruncMonth
 from collections import OrderedDict
 from dateutil.relativedelta import relativedelta
+from django.contrib import messages
 
 
 class DateTimeEncoder(json.JSONEncoder):
@@ -255,13 +256,16 @@ def holiday_delete(request, holiday_id):
 
 @login_required(login_url="/login")
 def holiday_create(request):
-    form = HolidayForm()
     if request.method == "POST":
-        form = HolidayForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect("task:holiday_list")
-    return render(request, "holiday/holiday_create.html", {"form": form})
+        titles = request.POST.getlist("title")
+        dates = request.POST.getlist("date")
+        for title, date in zip(titles, dates):
+            if title and date:
+                Holiday.objects.create(title=title, date=date)
+        messages.success(request, "Holidays created successfully.")
+        return redirect("task:holiday_list")
+
+    return render(request, "holiday/holiday_create.html")
 
 
 @login_required(login_url="/login")
@@ -281,25 +285,30 @@ def render_calendar(request):
 
 
 def get_month_range(start_date, end_date):
-    months = OrderedDict()
+    result = OrderedDict()
     current = start_date.replace(day=1)
-    while current <= end_date:
-        months[current.strftime("%Y-%m")] = 0
-        current += relativedelta(months=1)
-    return months
+    end_month = end_date.replace(day=1)
+
+    while current <= end_month:
+        key = current.strftime("%Y-%m")
+        result[key] = current
+        # Move to next month
+        if current.month == 12:
+            current = current.replace(year=current.year + 1, month=1)
+        else:
+            current = current.replace(month=current.month + 1)
+    return result
 
 
 @login_required(login_url="/login")
 def dashboard(request):
     today = datetime.now().date()
-
-    # Show last 3 full months including current
     start_date = today.replace(day=1) - relativedelta(months=2)
     end_date = today
 
-    # Allow custom date range via query params
     start_date_str = request.GET.get("start_date", start_date.strftime("%Y-%m-%d"))
     end_date_str = request.GET.get("end_date", end_date.strftime("%Y-%m-%d"))
+    user_id = request.GET.get("user")
 
     try:
         start_date = datetime.strptime(start_date_str, "%Y-%m-%d").date()
@@ -308,7 +317,17 @@ def dashboard(request):
         start_date = today.replace(day=1) - relativedelta(months=2)
         end_date = today
 
-    if request.user.role == User.Role_Type.ADMIN:
+    selected_user = None
+    if user_id:
+        try:
+            selected_user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            selected_user = None
+
+    if selected_user:
+        leave_queryset = LeaveRequest.objects.filter(user=selected_user)
+        time_queryset = TimeLog.objects.filter(user=selected_user)
+    elif request.user.role == User.Role_Type.ADMIN:
         leave_queryset = LeaveRequest.objects.all()
         time_queryset = TimeLog.objects.all()
     elif request.user.role == User.Role_Type.MANAGER:
@@ -318,35 +337,64 @@ def dashboard(request):
         leave_queryset = LeaveRequest.objects.filter(user=request.user)
         time_queryset = TimeLog.objects.filter(user=request.user)
 
-    # Overlap filtering
     leave_queryset = leave_queryset.filter(
         end_at__gte=start_date, start_at__lte=end_date
     )
-
     time_queryset = time_queryset.filter(
         end_time__gte=start_date, start_time__lte=end_date
     )
 
-    # Generate a complete month list
     month_range = get_month_range(start_date, end_date)
 
-    # Leave Data (Monthly Group)
+    # LEAVE DATA
     leave_data = (
         leave_queryset.annotate(month=TruncMonth("start_at"))
-        .values("month")
+        .values("month", "leave_type__leave_type")
         .annotate(count=Count("id"))
         .order_by("month")
     )
 
-    leave_map = month_range.copy()
+    leave_map = {
+        month: {lt.leave_type: 0 for lt in LeaveType.objects.all()}
+        for month in month_range.keys()
+    }
+
     for entry in leave_data:
         label = entry["month"].strftime("%Y-%m")
-        leave_map[label] = entry["count"]
+        lt = entry["leave_type__leave_type"]
+        if label in leave_map and lt in leave_map[label]:
+            leave_map[label][lt] += entry["count"]
+        else:
+            # Handle unknown leave types safely
+            leave_map.setdefault(label, {}).setdefault(lt, 0)
+            leave_map[label][lt] += entry["count"]
 
     leave_labels = list(leave_map.keys())
-    leave_values = list(leave_map.values())
+    leave_datasets = []
 
-    # TimeLog Data (Monthly Group)
+    colors = {
+        "sick": "#FF6384",
+        "emergency": "#FF9F40",
+        "vacation": "#FFCD56",
+        "unpaid": "#4BC0C0",
+        "other": "#36A2EB",
+    }
+
+    for leave_type in LeaveType.objects.values_list("leave_type", flat=True):
+        data = [leave_map[m].get(leave_type, 0) for m in leave_labels]
+        leave_datasets.append(
+            {
+                "label": leave_type.capitalize(),
+                "data": data,
+                "backgroundColor": colors.get(leave_type, "#AAAAAA"),
+                "stack": "leave",
+            }
+        )
+
+    start_date = timezone.make_aware(datetime.combine(start_date, datetime.min.time()))
+    end_date = timezone.make_aware(
+        datetime.combine(end_date, datetime.min.time())
+    )  # TIMELOG DATA (with holiday tracking)
     time_data = (
         time_queryset.annotate(
             duration=ExpressionWrapper(
@@ -354,29 +402,46 @@ def dashboard(request):
             ),
             month=TruncMonth("start_time"),
         )
-        .values("month")
+        .values("month", "is_holiday")
         .annotate(total_hours=Sum("duration"))
-        .order_by("month")
+        .order_by("month", "is_holiday")
     )
-
-    time_map = month_range.copy()
+    print("time data", time_data)
+    print("user", time_queryset)
+    time_map = {month: {"work": 0, "holiday": 0} for month in month_range.keys()}
     for entry in time_data:
         label = entry["month"].strftime("%Y-%m")
         hours = (
             entry["total_hours"].total_seconds() / 3600 if entry["total_hours"] else 0
         )
-        time_map[label] = round(hours, 2)
+        if label not in time_map:
+            time_map[label] = {"work": 0, "holiday": 0}
+        if entry["is_holiday"]:
+            time_map[label]["holiday"] += round(hours, 2)
+        else:
+            time_map[label]["work"] += round(hours, 2)
 
     time_labels = list(time_map.keys())
-    time_values = list(time_map.values())
+    work_hours = [time_map[m]["work"] for m in time_labels]
+    holiday_hours = [time_map[m]["holiday"] for m in time_labels]
+
+    # Get user list for dropdown
+    if request.user.role == User.Role_Type.ADMIN:
+        users = User.objects.all()
+    elif request.user.role == User.Role_Type.MANAGER:
+        users = User.objects.filter(report_to=request.user)
+    else:
+        users = User.objects.filter(id=request.user.id)
 
     context = {
         "leave_labels": json.dumps(leave_labels),
-        "leave_values": json.dumps(leave_values),
+        "leave_datasets": json.dumps(leave_datasets),
         "time_labels": json.dumps(time_labels),
-        "time_values": json.dumps(time_values),
-        "start_date": json.dumps(start_date.strftime("%Y-%m-%d")),
-        "end_date": json.dumps(end_date.strftime("%Y-%m-%d")),
+        "work_hours": json.dumps(work_hours),
+        "holiday_hours": json.dumps(holiday_hours),
+        "start_date": start_date.strftime("%Y-%m-%d"),
+        "end_date": end_date.strftime("%Y-%m-%d"),
+        "users": users,
     }
 
     return render(request, "account/dashboard.html", context)
@@ -405,5 +470,6 @@ def category_create(request):
         form = CategoryForm(request.POST)
         if form.is_valid():
             form.save()
+            messages.success(request, "Category created successfully.")
             return redirect("task:category_list")
     return render(request, "task/category_form.html", {"form": form})

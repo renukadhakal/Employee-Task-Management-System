@@ -2,26 +2,27 @@
 {% block content %}
 <div class="container mt-4">
     <div class="card shadow-sm p-4">
-        <h2 class="mb-3 text-center">Create New Holiday</h2>
-        {% if messages %}
-            <div class="alert alert-dismissible fade show">
-                {% for message in messages %}
-                    <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-success{% endif %}">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            </div>
-        {% endif %}
-        <form method="post" class="needs-validation" action="{% url 'task:create_holiday' %}">
+        <h2 class="mb-3 text-center">Create New Holidays</h2>
+
+        <form method="post" action="{% url 'task:create_holiday' %}">
             {% csrf_token %}
-            <div class="mb-3">
-                {{ form.title.label_tag }}
-                {{ form.title }}
+            <div id="holiday-entries">
+                <div class="row holiday-row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Holiday Title</label>
+                        <input type="text" name="title" class="form-control" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Date</label>
+                        <input type="date" name="date" class="form-control" required>
+                    </div>
+                </div>
             </div>
-            <div class="mb-3">
-                {{ form.date.label_tag }}
-                {{ form.date }}
+
+            <div class="text-center mb-3">
+                <button type="button" class="btn btn-outline-primary" onclick="addHolidayRow()">+ Add Holiday</button>
             </div>
+
             <div class="text-center">
                 <button type="submit" class="btn btn-primary">Submit</button>
                 <a href="{% url 'task:holiday_list' %}" class="btn btn-secondary">Back to List</a>
@@ -29,4 +30,24 @@
         </form>
     </div>
 </div>
+
+<script>
+    function addHolidayRow() {
+        const container = document.getElementById("holiday-entries");
+
+        const newRow = document.createElement("div");
+        newRow.classList.add("row", "holiday-row", "mb-3");
+
+        newRow.innerHTML = `
+            <div class="col-md-6">
+                <input type="text" name="title" class="form-control" placeholder="Holiday Title" required>
+            </div>
+            <div class="col-md-6">
+                <input type="date" name="date" class="form-control" required>
+            </div>
+        `;
+
+        container.appendChild(newRow);
+    }
+</script>
 {% endblock %}

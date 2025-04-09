@@ -14,6 +14,7 @@ from .views import (
     change_password,
     UserUpdateView,
     transfer_employee,
+    get_user_profile,
 )
 
 app_name = "account"
@@ -47,4 +48,5 @@ urlpatterns = [
     ),
     path("change_password", change_password, name="change_password"),
     path("transfer-employee/", transfer_employee, name="transfer_employee"),
+    path("profile/<int:pk>/", get_user_profile, name="user-profile"),
 ]

@@ -19,6 +19,8 @@
         <td>{{user.last_name}}</td>
         <td>{{user.username}}</td>
         <td>{{user.role}}</td>
+        <td><a href="{% url 'account:user-profile' user.id %}" class="btn btn-primary">View User</a></td>
+
         <td><a href="{% url 'account:manager-user-update' user.id %}" class="btn btn-primary">Update Employee</a></td>
         <td><a href="{% url 'account:manager-user-delete' user.id %}" class="btn btn-primary">Delete Employee</a></td>
       </tr>
