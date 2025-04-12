@@ -3,6 +3,63 @@
 
 <div class="container my-5">
   <h2 class="mb-4 text-center fw-bold" style="color: #4b6cb7;">Dashboard</h2>
+<!-- Stats Cards Row -->
+<div class="row text-center mb-5">
+  <!-- Total Employees -->
+  <div class="col-md-2 mb-3">
+    <div class="card shadow-sm border-0 h-100 text-dark" style="background: linear-gradient(135deg,rgb(171, 212, 235) 0%,rgb(182, 212, 243) 100%);">
+      <div class="card-body">
+        <i class="bi bi-people-fill fs-2"></i>
+        <h6 class="mt-2">Employees</h6>
+        <h4 class="fw-bold">{{ total_employees }}</h4>
+      </div>
+    </div>
+  </div>
+
+  <!-- Total Managers -->
+  <div class="col-md-2 mb-3">
+    <div class="card shadow-sm border-0 h-100 text-dark" style="background: linear-gradient(135deg,rgb(171, 212, 235) 0%,rgb(182, 212, 243) 100%);">
+      <div class="card-body">
+        <i class="bi bi-person-badge-fill fs-2"></i>
+        <h6 class="mt-2">Managers</h6>
+        <h4 class="fw-bold">{{ total_managers }}</h4>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tasks Assigned -->
+  <div class="col-md-2 mb-3">
+    <div class="card shadow-sm border-0 h-100 text-dark" style="background: linear-gradient(135deg,rgb(171, 212, 235) 0%,rgb(182, 212, 243) 100%);">
+      <div class="card-body">
+        <i class="bi bi-list-check fs-2"></i>
+        <h6 class="mt-2">Tasks Assigned</h6>
+        <h4 class="fw-bold">{{ total_tasks_assigned }}</h4>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tasks Completed -->
+  <div class="col-md-3 mb-3">
+    <div class="card shadow-sm border-0 h-100 text-dark" style="background: linear-gradient(135deg,rgb(171, 212, 235) 0%,rgb(182, 212, 243) 100%);">
+      <div class="card-body">
+        <i class="bi bi-check2-circle fs-2"></i>
+        <h6 class="mt-2">Tasks Completed</h6>
+        <h4 class="fw-bold">{{ total_tasks_completed }}</h4>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tasks In Progress -->
+  <div class="col-md-3 mb-3">
+    <div class="card shadow-sm border-0 h-100 text-dark" style="background: linear-gradient(135deg,rgb(171, 212, 235) 0%,rgb(182, 212, 243) 100%);">
+      <div class="card-body">
+        <i class="bi bi-hourglass-split fs-2"></i>
+        <h6 class="mt-2">In Progress</h6>
+        <h4 class="fw-bold">{{ total_tasks_in_progress }}</h4>
+      </div>
+    </div>
+  </div>
+</div>
 
   <form method="get" class="row g-3 align-items-end mb-5 bg-light p-4 rounded shadow-sm">
     <div class="col-md-3">
@@ -32,19 +89,30 @@
     </div>
   </form>
 
-  <!-- Leave Chart -->
-  <div class="card mb-5 shadow-sm border-0">
-    <div class="card-header text-white fw-semibold" style="background-color: #00b7aa;">Leave Summary</div>
-    <div class="card-body">
-      <canvas id="leaveChart" height="100"></canvas>
+  <!-- Charts Row -->
+  <div class="row">
+    <!-- Leave Chart Column -->
+    <div class="col-md-6 mb-4">
+      <div class="card shadow-sm border-0">
+        <div class="card-header text-white fw-semibold" style="background-color: #00b7aa;">
+          Leave Summary
+        </div>
+        <div class="card-body">
+          <canvas id="leaveChart" height="150"></canvas>
+        </div>
+      </div>
     </div>
-  </div>
 
-  <!-- Time Log Chart -->
-  <div class="card shadow-sm border-0">
-    <div class="card-header text-white fw-semibold" style="background-color: #00b7aa;">Time Log Summary</div>
-    <div class="card-body">
-      <canvas id="timeLogChart" height="100"></canvas>
+    <!-- Time Log Chart Column -->
+    <div class="col-md-6 mb-4">
+      <div class="card shadow-sm border-0">
+        <div class="card-header text-white fw-semibold" style="background-color: #00b7aa;">
+          Time Log Summary
+        </div>
+        <div class="card-body">
+          <canvas id="timeLogChart" height="150"></canvas>
+        </div>
+      </div>
     </div>
   </div>
 </div>

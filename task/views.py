@@ -340,9 +340,7 @@ def dashboard(request):
     leave_queryset = leave_queryset.filter(
         end_at__gte=start_date, start_at__lte=end_date
     )
-    time_queryset = time_queryset.filter(
-        end_time__gte=start_date, start_time__lte=end_date
-    )
+    time_queryset = time_queryset.filter()
 
     month_range = get_month_range(start_date, end_date)
 
@@ -365,7 +363,6 @@ def dashboard(request):
         if label in leave_map and lt in leave_map[label]:
             leave_map[label][lt] += entry["count"]
         else:
-            # Handle unknown leave types safely
             leave_map.setdefault(label, {}).setdefault(lt, 0)
             leave_map[label][lt] += entry["count"]
 
@@ -392,9 +389,9 @@ def dashboard(request):
         )
 
     start_date = timezone.make_aware(datetime.combine(start_date, datetime.min.time()))
-    end_date = timezone.make_aware(
-        datetime.combine(end_date, datetime.min.time())
-    )  # TIMELOG DATA (with holiday tracking)
+    end_date = timezone.make_aware(datetime.combine(end_date, datetime.min.time()))
+
+    # TIMELOG DATA
     time_data = (
         time_queryset.annotate(
             duration=ExpressionWrapper(
@@ -406,8 +403,8 @@ def dashboard(request):
         .annotate(total_hours=Sum("duration"))
         .order_by("month", "is_holiday")
     )
-    print("time data", time_data)
-    print("user", time_queryset)
+    print(time_queryset)
+    print(time_data)
     time_map = {month: {"work": 0, "holiday": 0} for month in month_range.keys()}
     for entry in time_data:
         label = entry["month"].strftime("%Y-%m")
@@ -425,13 +422,41 @@ def dashboard(request):
     work_hours = [time_map[m]["work"] for m in time_labels]
     holiday_hours = [time_map[m]["holiday"] for m in time_labels]
 
-    # Get user list for dropdown
+    # USER FILTER LIST
     if request.user.role == User.Role_Type.ADMIN:
         users = User.objects.all()
     elif request.user.role == User.Role_Type.MANAGER:
         users = User.objects.filter(report_to=request.user)
     else:
         users = User.objects.filter(id=request.user.id)
+
+    # STATS
+    total_employees = User.objects.filter(role=User.Role_Type.EMPLOYEE).count()
+    total_managers = User.objects.filter(role=User.Role_Type.MANAGER).count()
+
+    if request.user.role == User.Role_Type.ADMIN:
+        total_tasks_assigned = Task.objects.count()
+        total_tasks_completed = Task.objects.filter(status="COMPLETED").count()
+        total_tasks_in_progress = Task.objects.filter(status="IN_PROGRESS").count()
+    elif request.user.role == User.Role_Type.MANAGER:
+        employee_ids = User.objects.filter(report_to=request.user).values_list(
+            "id", flat=True
+        )
+        total_tasks_assigned = Task.objects.filter(assigned_to__in=employee_ids).count()
+        total_tasks_completed = Task.objects.filter(
+            assigned_to__in=employee_ids, status="COMPLETED"
+        ).count()
+        total_tasks_in_progress = Task.objects.filter(
+            assigned_to__in=employee_ids, status="IN_PROGRESS"
+        ).count()
+    else:
+        total_tasks_assigned = Task.objects.filter(assigned_to=request.user).count()
+        total_tasks_completed = Task.objects.filter(
+            assigned_to=request.user, status="COMPLETED"
+        ).count()
+        total_tasks_in_progress = Task.objects.filter(
+            assigned_to=request.user, status="IN_PROGRESS"
+        ).count()
 
     context = {
         "leave_labels": json.dumps(leave_labels),
@@ -442,6 +467,11 @@ def dashboard(request):
         "start_date": start_date.strftime("%Y-%m-%d"),
         "end_date": end_date.strftime("%Y-%m-%d"),
         "users": users,
+        "total_employees": total_employees,
+        "total_managers": total_managers,
+        "total_tasks_assigned": total_tasks_assigned,
+        "total_tasks_completed": total_tasks_completed,
+        "total_tasks_in_progress": total_tasks_in_progress,
     }
 
     return render(request, "account/dashboard.html", context)

@@ -4,16 +4,23 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ETMS</title>
+    <!-- Bootstrap CSS -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
       integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
       crossorigin="anonymous"
     />
+    <!-- Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+    />
     <style>
       body {
         font-family: Arial, sans-serif;
       }
+      /* Static Sidebar (for md and larger) */
       .sidebar {
         background-color: #286275;
         color: white;
@@ -24,13 +31,13 @@
         text-decoration: none;
         padding: 10px 15px;
         display: block;
-        border-left: 2px solid transparent; /* Initial border for hover effect */
+        border-left: 2px solid transparent;
         transition: all 0.3s ease;
       }
       .sidebar a:hover {
         color: #fff;
         background-color: rgb(68, 115, 162);
-        border: 4px solid #fff; /* Border color when hovered */
+        border: 4px solid #fff;
         border-radius: 5px;
       }
       .profile-section {
@@ -45,7 +52,7 @@
         margin: 0;
       }
       .sidebar .nav-item {
-        margin-bottom: 10px; /* Space between items */
+        margin-bottom: 10px;
       }
     </style>
   </head>
@@ -60,6 +67,16 @@
           <a class="navbar-brand fw-bold fs-4" href="{% url 'account:home' %}"
             >TaskEase</a
           >
+          <!-- Sidebar Toggle Button for Mobile -->
+          <button
+            class="btn btn-outline-light d-md-none me-2"
+            type="button"
+            data-bs-toggle="offcanvas"
+            data-bs-target="#sidebarOffcanvas"
+            aria-controls="sidebarOffcanvas"
+          >
+            <i class="bi-list"></i>
+          </button>
           <button
             class="navbar-toggler"
             type="button"
@@ -108,80 +125,244 @@
       </nav>
     </header>
 
-    <!-- Modal Structure -->
+    <!-- Offcanvas Sidebar for Mobile -->
     <div
-      class="modal fade"
-      id="notificationModal"
+      class="offcanvas offcanvas-start d-md-none"
       tabindex="-1"
-      aria-labelledby="notificationModalLabel"
-      aria-hidden="true"
+      id="sidebarOffcanvas"
+      aria-labelledby="sidebarOffcanvasLabel"
     >
-      <div class="modal-dialog modal-dialog-scrollable">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title fw-bold" id="notificationModalLabel">
-              Notifications
-            </h5>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
-          </div>
-          <div class="modal-body">
-            {% if notifications %}
-            <ul class="list-group">
-              {% for notification in notifications %}
-              <li
-                class="list-group-item d-flex justify-content-between align-items-start"
-              >
-                <div>
-                  <span class="fw-semibold">{{ notification.title }}</span
-                  ><br />
-                  <small class="text-muted">{{ notification.timestamp }}</small>
-                  <p>{{ notification.message }}</p>
-                </div>
-                {% if not notification.is_read %}
-                <button
-                  class="btn btn-sm btn-primary mark-read-btn"
-                  data-id="{{ notification.id }}"
-                >
-                  Mark as Read
-                </button>
-                {% endif %}
-              </li>
-              {% endfor %}
-            </ul>
-            <button class="btn btn-secondary mt-3" id="mark-all-read">
-              Mark All as Read
-            </button>
+      <div class="offcanvas-header" style="background-color: #286275; color: white;">
+        <h5 class="offcanvas-title" id="sidebarOffcanvasLabel">Menu</h5>
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          data-bs-dismiss="offcanvas"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="offcanvas-body p-0" style="background-color: #286275;">
+        <!-- Profile Section -->
+        <div class="profile-section">
+          <div>
+            {% if request.user.image %}
+            <img
+              src="{{ request.user.image.url }}"
+              alt="User Image"
+              width="80"
+              height="80"
+            />
             {% else %}
-            <p class="text-center text-muted">No new notifications</p>
+            <div
+              style="
+                width: 80px;
+                height: 80px;
+                background-color: #ccc;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                border-radius: 50%;
+                font-size: 24px;
+                color: white;
+              "
+            >
+              {{ request.user.username|slice:":1"|upper }}
+            </div>
             {% endif %}
           </div>
+          <h5>{{ request.user.username }}</h5>
         </div>
+        <!-- Menu -->
+        <ul class="nav nav-pills flex-column mb-sm-auto mb-0">
+          {% if user.role == 'admin' %}
+          <li class="nav-item">
+            <a href="{% url 'task:dashboard' %}" class="nav-link align-middle px-3">
+              <i class="fs-4 bi-speedometer2"></i>
+              <span class="ms-1">Dashboard</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="{% url 'account:admin-user-list' %}" class="nav-link align-middle px-3">
+              <i class="fs-4 bi-people"></i>
+              <span class="ms-1">Manage User</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              href="{% url 'account:transfer_employee' %}"
+              class="nav-link align-middle px-3"
+            >
+              <i class="fs-4 bi-arrow-left-right"></i>
+              <span class="ms-1">Transfer Employee</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="{% url 'task:task_list' %}" class="nav-link align-middle px-3">
+              <i class="fs-4 bi-card-checklist"></i>
+              <span class="ms-1">Task Overview</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="{% url 'task:category_list' %}" class="nav-link align-middle px-3">
+              <i class="fs-4 bi-folder2-open"></i>
+              <span class="ms-1">Task Categories</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="{% url 'task:calendar' %}" class="nav-link align-middle px-3">
+              <i class="fs-4 bi-calendar3"></i>
+              <span class="ms-1">Calendar</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="{% url 'task:holiday_list' %}" class="nav-link align-middle px-3">
+              <i class="fs-4 bi-briefcase"></i>
+              <span class="ms-1">Holiday Management</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              href="{% url 'notification:notification_list' %}"
+              class="nav-link align-middle px-3"
+            >
+              <i class="fs-4 bi-bell"></i>
+              <span class="ms-1">Notification</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              href="{% url 'account:user-update' request.user.id %}"
+              class="nav-link align-middle px-3"
+            >
+              <i class="fs-4 bi-gear"></i>
+              <span class="ms-1">Setting</span>
+            </a>
+          </li>
+          {% elif user.role == 'manager' %}
+          <li class="nav-item">
+            <a href="{% url 'task:dashboard' %}" class="nav-link align-middle px-3">
+              <i class="fs-4 bi-speedometer2"></i>
+              <span class="ms-1">Dashboard</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              href="{% url 'account:manager-user-list' %}"
+              class="nav-link align-middle px-3"
+            >
+              <i class="fs-4 bi-people"></i>
+              <span class="ms-1">Manage Employee</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="{% url 'task:holiday_list' %}" class="nav-link align-middle px-3">
+              <i class="fs-4 bi-calendar2-check"></i>
+              <span class="ms-1">Holiday</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="{% url 'task:calendar' %}" class="nav-link align-middle px-3">
+              <i class="fs-4 bi-calendar3"></i>
+              <span class="ms-1">Calendar</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              href="{% url 'task:manager_employee_task_list' %}"
+              class="nav-link align-middle px-3"
+            >
+              <i class="fs-4 bi-card-list"></i>
+              <span class="ms-1">Employee Task</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="{% url 'task:user_task_list' %}" class="nav-link align-middle px-3">
+              <i class="fs-4 bi-card-checklist"></i>
+              <span class="ms-1">My Task</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="{% url 'leave:manager_leave_requests' %}" class="nav-link align-middle px-3">
+              <i class="fs-4 bi-envelope"></i>
+              <span class="ms-1">Leave Request</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              href="{% url 'account:user-update' request.user.id %}"
+              class="nav-link align-middle px-3"
+            >
+              <i class="fs-4 bi-gear"></i>
+              <span class="ms-1">Setting</span>
+            </a>
+          </li>
+          {% elif user.role == 'employee' %}
+          <li class="nav-item">
+            <a href="{% url 'task:dashboard' %}" class="nav-link align-middle px-3">
+              <i class="fs-4 bi-speedometer2"></i>
+              <span class="ms-1">Dashboard</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="{% url 'task:user_task_list' %}" class="nav-link align-middle px-3">
+              <i class="fs-4 bi-card-checklist"></i>
+              <span class="ms-1">My Task</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="{% url 'task:holiday_list' %}" class="nav-link align-middle px-3">
+              <i class="fs-4 bi-calendar3"></i>
+              <span class="ms-1">Holiday</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="{% url 'task:calendar' %}" class="nav-link align-middle px-3">
+              <i class="fs-4 bi-calendar-check"></i>
+              <span class="ms-1">Calendar</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="{% url 'task:time_log_list' %}" class="nav-link align-middle px-3">
+              <i class="fs-4 bi-clock-history"></i>
+              <span class="ms-1">Time Log</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="{% url 'leave:leave_request_list' %}" class="nav-link align-middle px-3">
+              <i class="fs-4 bi-envelope"></i>
+              <span class="ms-1">Leave Request</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              href="{% url 'account:user-update' request.user.id %}"
+              class="nav-link align-middle px-3"
+            >
+              <i class="fs-4 bi-gear"></i>
+              <span class="ms-1">Setting</span>
+            </a>
+          </li>
+          {% else %}
+          <p class="text-center">Welcome, guest!</p>
+          {% endif %}
+          <li class="nav-item">
+            <a href="{% url 'account:logout' %}" class="nav-link align-middle px-3">
+              <i class="fs-4 bi-box-arrow-right"></i>
+              <span class="ms-1">Logout →</span>
+            </a>
+          </li>
+        </ul>
       </div>
     </div>
 
-    <!-- Main Content -->
+    <!-- Main Content Area -->
     <div class="container-fluid">
       <div class="row flex-nowrap">
-        <!-- Sidebar -->
-        <div class="col-auto col-md-3 col-xl-2 px-sm-2 px-0 sidebar">
-          <div
-            class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-3"
-          >
+        <!-- Static Sidebar for md+ Screens -->
+        <div class="col-auto col-md-3 col-xl-2 px-sm-2 px-0 sidebar d-none d-md-block">
+          <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-3">
             <!-- Profile Section -->
-            <div
-              class="profile-section"
-              style="
-                display: flex;
-                width: 100%;
-                flex-direction: column;
-                align-items: center;
-              "
-            >
+            <div class="profile-section">
               <div>
                 {% if request.user.image %}
                 <img
@@ -208,10 +389,7 @@
                 </div>
                 {% endif %}
               </div>
-              <h5>{{request.user.username}}</h5>
-              {% comment %}
-              <h5>{{request.user.role}}</h5>
-              {% endcomment %}
+              <h5>{{ request.user.username }}</h5>
             </div>
             <!-- Menu -->
             <ul
@@ -220,204 +398,151 @@
             >
               {% if user.role == 'admin' %}
               <li class="nav-item">
-               <a href="{% url 'task:dashboard' %}" class="nav-link align-middle px-0">
-                  <i class="fs-4 bi-house"></i>
+                <a href="{% url 'task:dashboard' %}" class="nav-link align-middle px-0">
+                  <i class="fs-4 bi-speedometer2"></i>
                   <span class="ms-1 d-none d-sm-inline">Dashboard</span>
                 </a>
               </li>
               <li class="nav-item">
-                <a
-                  href="{% url 'account:admin-user-list' %}"
-                  class="nav-link align-middle px-0"
-                >
-                  <i class="fs-4 bi-house"></i>
+                <a href="{% url 'account:admin-user-list' %}" class="nav-link align-middle px-0">
+                  <i class="fs-4 bi-people"></i>
                   <span class="ms-1 d-none d-sm-inline">Manage User</span>
                 </a>
               </li>
-
               <li class="nav-item">
                 <a
                   href="{% url 'account:transfer_employee' %}"
                   class="nav-link align-middle px-0"
                 >
-                  <i class="fs-4 bi-house"></i>
+                  <i class="fs-4 bi-arrow-left-right"></i>
                   <span class="ms-1 d-none d-sm-inline">Transfer Employee</span>
                 </a>
               </li>
-
               <li class="nav-item">
-                <a
-                  href="{% url 'task:task_list' %}"
-                  class="nav-link align-middle px-0"
-                >
-                  <i class="fs-4 bi-house"></i>
+                <a href="{% url 'task:task_list' %}" class="nav-link align-middle px-0">
+                  <i class="fs-4 bi-card-checklist"></i>
                   <span class="ms-1 d-none d-sm-inline">Task Overview</span>
                 </a>
               </li>
               <li class="nav-item">
-                <a
-                  href="{% url 'task:category_list' %}"
-                  class="nav-link align-middle px-0"
-                >
-                  <i class="fs-4 bi-house"></i>
+                <a href="{% url 'task:category_list' %}" class="nav-link align-middle px-0">
+                  <i class="fs-4 bi-folder2-open"></i>
                   <span class="ms-1 d-none d-sm-inline">Task Categories</span>
                 </a>
               </li>
-              
-              
               <li class="nav-item">
                 <a href="{% url 'task:calendar' %}" class="nav-link align-middle px-0">
-                  <i class="fs-4 bi-house"></i>
+                  <i class="fs-4 bi-calendar3"></i>
                   <span class="ms-1 d-none d-sm-inline">Calendar</span>
                 </a>
               </li>
               <li class="nav-item">
-                <a
-                  href="{% url 'task:holiday_list' %}"
-                  class="nav-link align-middle px-0"
-                >
-                  <i class="fs-4 bi-house"></i>
+                <a href="{% url 'task:holiday_list' %}" class="nav-link align-middle px-0">
+                  <i class="fs-4 bi-briefcase"></i>
                   <span class="ms-1 d-none d-sm-inline">Holiday Management</span>
                 </a>
               </li>
               <li class="nav-item">
-                <a
-                  href="{% url 'notification:notification_list' %}"
-                  class="nav-link align-middle px-0"
-                >
-                  <i class="fs-4 bi-house"></i>
+                <a href="{% url 'notification:notification_list' %}" class="nav-link align-middle px-0">
+                  <i class="fs-4 bi-bell"></i>
                   <span class="ms-1 d-none d-sm-inline">Notification</span>
                 </a>
               </li>
               <li class="nav-item">
-                <a
-                  href="{% url 'account:user-update' request.user.id %}"
-                  class="nav-link align-middle px-0"
-                >
-                  <i class="fs-4 bi-house"></i>
+                <a href="{% url 'account:user-update' request.user.id %}" class="nav-link align-middle px-0">
+                  <i class="fs-4 bi-gear"></i>
                   <span class="ms-1 d-none d-sm-inline">Setting</span>
                 </a>
               </li>
-
               {% elif user.role == 'manager' %}
               <li class="nav-item">
                 <a href="{% url 'task:dashboard' %}" class="nav-link align-middle px-0">
-                  <i class="fs-4 bi-house"></i>
+                  <i class="fs-4 bi-speedometer2"></i>
                   <span class="ms-1 d-none d-sm-inline">Dashboard</span>
                 </a>
               </li>
               <li class="nav-item">
-                <a
-                  href="{% url 'account:manager-user-list' %}"
-                  class="nav-link align-middle px-0"
-                >
-                  <i class="fs-4 bi-house"></i>
+                <a href="{% url 'account:manager-user-list' %}" class="nav-link align-middle px-0">
+                  <i class="fs-4 bi-people"></i>
                   <span class="ms-1 d-none d-sm-inline">Manage Employee</span>
                 </a>
               </li>
-              
               <li class="nav-item">
-                <a
-                  href="{% url 'task:holiday_list' %}"
-                  class="nav-link align-middle px-0"
-                >
-                  <i class="fs-4 bi-house"></i>
+                <a href="{% url 'task:holiday_list' %}" class="nav-link align-middle px-0">
+                  <i class="fs-4 bi-calendar2-check"></i>
                   <span class="ms-1 d-none d-sm-inline">Holiday</span>
                 </a>
               </li>
               <li class="nav-item">
                 <a href="{% url 'task:calendar' %}" class="nav-link align-middle px-0">
-                  <i class="fs-4 bi-house"></i>
+                  <i class="fs-4 bi-calendar3"></i>
                   <span class="ms-1 d-none d-sm-inline">Calendar</span>
                 </a>
               </li>
               <li class="nav-item">
-                <a
-                  href="{% url 'task:manager_employee_task_list' %}"
-                  class="nav-link align-middle px-0"
-                >
-                  <i class="fs-4 bi-house"></i>
-                  <span class="ms-1 d-none d-sm-inline">Employee Task </span>
+                <a href="{% url 'task:manager_employee_task_list' %}" class="nav-link align-middle px-0">
+                  <i class="fs-4 bi-card-list"></i>
+                  <span class="ms-1 d-none d-sm-inline">Employee Task</span>
                 </a>
               </li>
-
               <li class="nav-item">
-                <a
-                  href="{% url 'task:user_task_list' %}"
-                  class="nav-link align-middle px-0"
-                >
-                  <i class="fs-4 bi-house"></i>
+                <a href="{% url 'task:user_task_list' %}" class="nav-link align-middle px-0">
+                  <i class="fs-4 bi-card-checklist"></i>
                   <span class="ms-1 d-none d-sm-inline">My Task</span>
                 </a>
               </li>
               <li class="nav-item">
                 <a href="{% url 'leave:manager_leave_requests' %}" class="nav-link align-middle px-0">
-                  <i class="fs-4 bi-house"></i>
-                  <span class="ms-1 d-none d-sm-inline">Leave Request </span>
+                  <i class="fs-4 bi-envelope"></i>
+                  <span class="ms-1 d-none d-sm-inline">Leave Request</span>
                 </a>
               </li>
-              
               <li class="nav-item">
-                <a
-                  href="{% url 'account:user-update' request.user.id %}"
-                  class="nav-link align-middle px-0"
-                >
-                  <i class="fs-4 bi-house"></i>
+                <a href="{% url 'account:user-update' request.user.id %}" class="nav-link align-middle px-0">
+                  <i class="fs-4 bi-gear"></i>
                   <span class="ms-1 d-none d-sm-inline">Setting</span>
                 </a>
               </li>
               {% elif user.role == 'employee' %}
               <li class="nav-item">
                 <a href="{% url 'task:dashboard' %}" class="nav-link align-middle px-0">
-                  <i class="fs-4 bi-house"></i>
+                  <i class="fs-4 bi-speedometer2"></i>
                   <span class="ms-1 d-none d-sm-inline">Dashboard</span>
                 </a>
               </li>
               <li class="nav-item">
-                <a
-                  href="{% url 'task:user_task_list' %}"
-                  class="nav-link align-middle px-0"
-                >
-                  <i class="fs-4 bi-house"></i>
+                <a href="{% url 'task:user_task_list' %}" class="nav-link align-middle px-0">
+                  <i class="fs-4 bi-card-checklist"></i>
                   <span class="ms-1 d-none d-sm-inline">My Task</span>
                 </a>
               </li>
               <li class="nav-item">
-                <a
-                  href="{% url 'task:holiday_list' %}"
-                  class="nav-link align-middle px-0"
-                >
-                  <i class="fs-4 bi-house"></i>
+                <a href="{% url 'task:holiday_list' %}" class="nav-link align-middle px-0">
+                  <i class="fs-4 bi-calendar3"></i>
                   <span class="ms-1 d-none d-sm-inline">Holiday</span>
                 </a>
               </li>
               <li class="nav-item">
-                <a href="{% url 'task:calendar' %}" class="nav-link align-middle px-0"> 
-                  <i class="fs-4 bi-house"></i>
+                <a href="{% url 'task:calendar' %}" class="nav-link align-middle px-0">
+                  <i class="fs-4 bi-calendar-check"></i>
                   <span class="ms-1 d-none d-sm-inline">Calendar</span>
                 </a>
               </li>
-              
               <li class="nav-item">
                 <a href="{% url 'task:time_log_list' %}" class="nav-link align-middle px-0">
-                  <i class="fs-4 bi-house"></i>
+                  <i class="fs-4 bi-clock-history"></i>
                   <span class="ms-1 d-none d-sm-inline">Time Log</span>
                 </a>
               </li>
-
               <li class="nav-item">
                 <a href="{% url 'leave:leave_request_list' %}" class="nav-link align-middle px-0">
-                  <i class="fs-4 bi-house"></i>
-                  <span class="ms-1 d-none d-sm-inline">Leave Request </span>
+                  <i class="fs-4 bi-envelope"></i>
+                  <span class="ms-1 d-none d-sm-inline">Leave Request</span>
                 </a>
               </li>
-
               <li class="nav-item">
-                <a
-                  href="{% url 'account:user-update' request.user.id %}"
-                  class="nav-link align-middle px-0"
-                >
-                  <i class="fs-4 bi-house"></i>
+                <a href="{% url 'account:user-update' request.user.id %}" class="nav-link align-middle px-0">
+                  <i class="fs-4 bi-gear"></i>
                   <span class="ms-1 d-none d-sm-inline">Setting</span>
                 </a>
               </li>
@@ -425,11 +550,8 @@
               <p>Welcome, guest!</p>
               {% endif %}
               <li class="nav-item">
-                <a
-                  href="{% url 'account:logout' %}"
-                  class="nav-link align-middle px-0"
-                >
-                  <i class="fs-4 bi-house"></i>
+                <a href="{% url 'account:logout' %}" class="nav-link align-middle px-0">
+                  <i class="fs-4 bi-box-arrow-right"></i>
                   <span class="ms-1 d-none d-sm-inline">Logout →</span>
                 </a>
               </li>
@@ -439,13 +561,63 @@
         </div>
 
         <!-- Content Area -->
-       <div class="col py-3" style="height: calc(100vh - 56px); overflow-y: auto;">
-  {% block content %}{% endblock content %}
-    </div>
+        <div class="col py-3" style="height: calc(100vh - 56px); overflow-y: auto;">
+          {% block content %}{% endblock content %}
+        </div>
       </div>
     </div>
 
-    <!-- Bootstrap Script -->
+    <!-- Notification Modal -->
+    <div
+      class="modal fade"
+      id="notificationModal"
+      tabindex="-1"
+      aria-labelledby="notificationModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title fw-bold" id="notificationModalLabel">
+              Notifications
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            {% if notifications %}
+            <ul class="list-group">
+              {% for notification in notifications %}
+              <li class="list-group-item d-flex justify-content-between align-items-start">
+                <div>
+                  <span class="fw-semibold">{{ notification.title }}</span><br />
+                  <small class="text-muted">{{ notification.timestamp }}</small>
+                  <p>{{ notification.message }}</p>
+                </div>
+                {% if not notification.is_read %}
+                <button class="btn btn-sm btn-primary mark-read-btn" data-id="{{ notification.id }}">
+                  Mark as Read
+                </button>
+                {% endif %}
+              </li>
+              {% endfor %}
+            </ul>
+            <button class="btn btn-secondary mt-3" id="mark-all-read">
+              Mark All as Read
+            </button>
+            {% else %}
+            <p class="text-center text-muted">No new notifications</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap Bundle Script -->
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
@@ -471,7 +643,7 @@
               .then((data) => {
                 if (data.success) {
                   this.closest("li").classList.add("text-muted");
-                  this.remove(); // Remove the button after marking as read
+                  this.remove();
                 }
               });
           });
@@ -489,12 +661,10 @@
               .then((response) => response.json())
               .then((data) => {
                 if (data.success) {
-                  document
-                    .querySelectorAll(".mark-read-btn")
-                    .forEach((btn) => btn.remove());
-                  document
-                    .querySelectorAll(".list-group-item")
-                    .forEach((item) => item.classList.add("text-muted"));
+                  document.querySelectorAll(".mark-read-btn").forEach((btn) => btn.remove());
+                  document.querySelectorAll(".list-group-item").forEach((item) =>
+                    item.classList.add("text-muted")
+                  );
                 }
               });
           });

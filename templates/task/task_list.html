@@ -1,69 +1,84 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <h2>All Tasks</h2>
-  <a href="{% url 'task:create_task' %}" class="btn btn-primary btn-sm">Create a new task</a>
-  {% if tasks %}
-    <table class="table table-bordered table-striped">
-      <thead class="thead-dark">
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2 class="mb-0">All Tasks</h2>
+  <a href="{% url 'task:create_task' %}" class="btn btn-success btn-sm">+ Create New Task</a>
+</div>
+
+{% if tasks %}
+  <div class="table-responsive">
+    <table class="table table-bordered table-hover align-middle text-center">
+      <thead class="table-dark">
         <tr>
           <th>#</th>
           <th>Title</th>
-          <th>Description</th>
+          <th style="max-width: 200px;">Description</th>
           <th>Due Date</th>
           <th>Status</th>
-          <th>Assigned to</th>
-          <th>File</th>
-          <th>Assigned to</th>
+          <th>Assigned To</th>
+          <th>Category</th>
+          <th>Attached File</th>
+          <th>Submitted File</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
         {% for task in tasks %}
-          <tr>
-            <td>{{ forloop.counter }}</td>
-            <td>{{ task.title }}</td>
-            <td>{{ task.description }}</td>
-            <td>{{ task.due_date }}</td>
-            <td>{{ task.get_status_display }}</td>
-            <td>{{ task.assigned_to}}</td>
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td>{{ task.title }}</td>
+          <td style="max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ task.description }}">
+            {{ task.description }}
+          </td>
+          <td>{{ task.due_date }}</td>
+          <td>{{ task.get_status_display }}</td>
+          <td>{{ task.assigned_to }}</td>
+          <td>
             {% if task.category %}
-              <td>{{ task.category.name }}</td>
+              {{ task.category.name }}
             {% else %}
-              <td>-</td>
+              -
             {% endif %}
-            <td>
-              {% if task.file %}
-                {% if task.file.url|lower|slice:"-4:" == ".jpg" or task.file.url|lower|slice:"-4:" == ".png" %}
-                  <img src="{{ task.file.url }}" alt="tasktask Image" class="img-fluid" style="max-width: 100px;">
-                {% else %}
-                  <a href="{{ task.file.url }}" download class="btn btn-secondary btn-sm">Download File</a>
-                {% endif %}
+          </td>
+          <td>
+            {% if task.file %}
+              {% if task.file.url|lower|slice:"-4:" == ".jpg" or task.file.url|lower|slice:"-4:" == ".png" %}
+                <img src="{{ task.file.url }}" alt="Attached Image" class="img-thumbnail" style="max-width: 100px;">
               {% else %}
-                No file attached
+                <a href="{{ task.file.url }}" download class="btn btn-outline-secondary btn-sm">Download</a>
               {% endif %}
-            </td>
-            <td>
-              {% if task.task_upload_file %}
-                {% if task.task_upload_file.url|lower|slice:"-4:" == ".jpg" or task.task_upload_file.url|lower|slice:"-4:" == ".png" %}
-                  <img src="{{ task.task_upload_file.url }}" alt="tasktask Image" class="img-fluid" style="max-width: 100px;">
-                {% else %}
-                  <a href="{{ task.task_upload_file.url }}" download class="btn btn-secondary btn-sm">Download File</a>
-                {% endif %}
+            {% else %}
+              <span class="text-muted">No file</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if task.task_upload_file %}
+              {% if task.task_upload_file.url|lower|slice:"-4:" == ".jpg" or task.task_upload_file.url|lower|slice:"-4:" == ".png" %}
+                <img src="{{ task.task_upload_file.url }}" alt="Submitted Image" class="img-thumbnail" style="max-width: 100px;">
               {% else %}
-                No file attached
+                <a href="{{ task.task_upload_file.url }}" download class="btn btn-outline-secondary btn-sm">Download</a>
               {% endif %}
-            </td>
-            <td>
-              <a href="{% url 'task:edit_task' task.id %}" class="btn btn-primary btn-sm">Edit</a>
-              <a href="{% url 'task:delete_task' task.id %}" class="btn btn-danger btn-sm" 
-                 onclick="return confirm('Are you sure you want to delete this task?');">Delete</a> 
-            </td>
-          </tr>
+            {% else %}
+              <span class="text-muted">No file</span>
+            {% endif %}
+          </td>
+          <td>
+            <div class="d-grid gap-1">
+              <a href="{% url 'task:edit_task' task.id %}" class="btn btn-warning btn-sm">Edit</a>
+              <a href="{% url 'task:delete_task' task.id %}" 
+                 class="btn btn-danger btn-sm"
+                 onclick="return confirm('Are you sure you want to delete this task?');">Delete</a>
+            </div>
+          </td>
+        </tr>
         {% endfor %}
       </tbody>
     </table>
-  {% else %}
-    <p>No tasks available. <a href="{% url 'task:create_task' %}">Create a new task</a>.</p>
-  {% endif %}
+  </div>
+{% else %}
+  <div class="alert alert-info">No tasks available. 
+    <a href="{% url 'task:create_task' %}" class="alert-link">Create one now</a>.
+  </div>
+{% endif %}
 {% endblock %}
