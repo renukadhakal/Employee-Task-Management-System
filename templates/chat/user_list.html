@@ -1,22 +1,46 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container mt-4">
-  <h3 class="mb-4 text-primary">👥 Users</h3>
-  <ul class="list-group">
-    {% for user, is_online in users %}
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-        <div>
-          <span class="fw-semibold">{{ user.username }}</span>
-          <span class="badge ms-2 {% if is_online %}bg-success{% else %}bg-danger{% endif %}">
-            {% if is_online %}Online{% else %}Offline{% endif %}
-          </span>
-        </div>
-        <a href="{% url 'chat:chat_user' user.username %}" class="btn btn-outline-primary btn-sm">
-          💬 Chat
-        </a>
-      </li>
-    {% endfor %}
-  </ul>
+<div class="container mt-5">
+  <div class="bg-white shadow rounded-4 p-4 border border-light-subtle">
+    <h3 class="mb-4 text-primary fw-bold">👥 Users</h3>
+    <ul class="list-group list-group-flush">
+      {% for user, is_online in users %}
+        <li class="list-group-item d-flex justify-content-between align-items-center mb-3 shadow-sm rounded-3 p-3 user-card">
+          <div class="d-flex align-items-center">
+            <div class="avatar bg-primary text-white rounded-circle d-flex justify-content-center align-items-center me-3" style="width: 45px; height: 45px; font-size: 1.1rem;">
+              {{ user.username|first|upper }}
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <div class="fw-semibold fs-6">{{ user.username }}</div>
+              <span class="badge {% if is_online %}bg-success{% else %}bg-danger{% endif %}">
+                {% if is_online %}Online{% else %}Offline{% endif %}
+              </span>
+            </div>
+          </div>
+          <a href="{% url 'chat:chat_user' user.username %}" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+            💬 Chat
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
 </div>
+
+<style>
+  .user-card {
+    transition: all 0.2s ease;
+  }
+
+  .user-card:hover {
+    background-color: #f8f9fa;
+    transform: scale(1.01);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.06);
+  }
+
+  .avatar {
+    font-weight: 600;
+    background: linear-gradient(135deg, #0d6efd, #6610f2);
+  }
+</style>
 {% endblock content %}
