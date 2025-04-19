@@ -229,6 +229,15 @@
               <span class="ms-1">Notification</span>
             </a>
           </li>
+           <li class="nav-item">
+            <a
+              href="{% url 'chat:chat_user_list' %}"
+              class="nav-link align-middle px-3"
+            >
+              <i class="fs-4 bi-chat-left-text"></i>
+              <span class="ms-1">Chat</span>
+            </a>
+          </li>
           <li class="nav-item">
             <a
               href="{% url 'account:user-update' request.user.id %}"
@@ -287,6 +296,15 @@
               <span class="ms-1">Leave Request</span>
             </a>
           </li>
+           <li class="nav-item">
+            <a
+              href="{% url 'chat:chat_user_list' %}"
+              class="nav-link align-middle px-3"
+            >
+              <i class="fs-4 bi-chat-left-text"></i>
+              <span class="ms-1">Chat</span>
+            </a>
+          </li>
           <li class="nav-item">
             <a
               href="{% url 'account:user-update' request.user.id %}"
@@ -330,7 +348,16 @@
           <li class="nav-item">
             <a href="{% url 'leave:leave_request_list' %}" class="nav-link align-middle px-3">
               <i class="fs-4 bi-envelope"></i>
-              <span class="ms-1">Leave Request</span>
+              <span class="ms-1">Leave Requests</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              href="{% url 'chat:chat_user_list' %}"
+              class="nav-link align-middle px-3"
+            >
+             <i class="fs-4 bi-envelope"></i>
+              <span class="ms-1">Chat</span>
             </a>
           </li>
           <li class="nav-item">
@@ -449,6 +476,12 @@
                 </a>
               </li>
               <li class="nav-item">
+                <a href="{% url 'chat:chat_user_list' %}" class="nav-link align-middle px-0">
+                  <i class="fs-4 bi-chat-left-text"></i>
+                  <span class="ms-1 d-none d-sm-inline">Chat</span>
+                </a>
+              </li>
+              <li class="nav-item">
                 <a href="{% url 'account:user-update' request.user.id %}" class="nav-link align-middle px-0">
                   <i class="fs-4 bi-gear"></i>
                   <span class="ms-1 d-none d-sm-inline">Setting</span>
@@ -498,6 +531,12 @@
                 </a>
               </li>
               <li class="nav-item">
+                <a href="{% url 'chat:chat_user_list' %}" class="nav-link align-middle px-0">
+                  <i class="fs-4 bi-chat-left-text"></i>
+                  <span class="ms-1 d-none d-sm-inline">Chat</span>
+                </a>
+              </li>
+              <li class="nav-item">
                 <a href="{% url 'account:user-update' request.user.id %}" class="nav-link align-middle px-0">
                   <i class="fs-4 bi-gear"></i>
                   <span class="ms-1 d-none d-sm-inline">Setting</span>
@@ -538,6 +577,12 @@
                 <a href="{% url 'leave:leave_request_list' %}" class="nav-link align-middle px-0">
                   <i class="fs-4 bi-envelope"></i>
                   <span class="ms-1 d-none d-sm-inline">Leave Request</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="{% url 'chat:chat_user_list' %}" class="nav-link align-middle px-0">
+                  <i class="fs-4 bi-chat-left-text"></i>
+                  <span class="ms-1 d-none d-sm-inline">Chat</span>
                 </a>
               </li>
               <li class="nav-item">

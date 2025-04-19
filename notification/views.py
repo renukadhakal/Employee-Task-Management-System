@@ -32,7 +32,7 @@ def mark_notification_as_read(request, notification_id=None):
 
 
 def notification_list(request):
-    notifications = Notification.objects.all()
+    notifications = Notification.objects.all().order_by("-id")
     return render(request, "notifications/list.html", {"notifications": notifications})
 
 

@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+  .messenger-container {
+    max-width: 600px;
+    height: 80vh;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+  }
+  .chat-header {
+    background: #0084ff;
+    color: #fff;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+  }
+  .chat-header img {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    margin-right: 8px;
+  }
+  .chat-body {
+    flex: 1;
+    padding: 12px;
+    overflow-y: auto;
+    background: #f0f0f0;
+  }
+  .chat-message {
+    display: block;
+    width: fit-content;
+    max-width: 75%;
+    clear: both;
+    padding: 8px 12px;
+    border-radius: 18px;
+    margin-bottom: 8px;
+    line-height: 1.4;
+    word-wrap: break-word;
+    background-clip: padding-box;
+  }
+  .chat-message.sent {
+    background: #0084ff;
+    color: #fff;
+    margin-left: auto;
+    border-bottom-right-radius: 2px;
+    border-bottom-left-radius: 18px;
+  }
+  .chat-message.received {
+    background: #e4e6eb;
+    color: #000;
+    margin-right: auto;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 18px;
+  }
+  .chat-input {
+    padding: 8px;
+    border-top: 1px solid #ddd;
+    display: flex;
+    align-items: center;
+    background: #fff;
+  }
+  .chat-input input {
+    flex: 1;
+    border: none;
+    padding: 10px 12px;
+    border-radius: 18px;
+    background: #f0f2f5;
+    outline: none;
+  }
+  .chat-input button {
+    margin-left: 8px;
+    border: none;
+    background: transparent;
+    outline: none;
+  }
+</style>
+
+<div class="messenger-container">
+  <div class="chat-header">
+    {% if other_user.profile.avatar.url %}
+      <img src="{{ other_user.profile.avatar.url }}" alt="{{ other_user.username }}">
+    {% endif %}
+    <div>
+      <strong>{{ other_user.username }}</strong><br>
+      <small class="text-light">Online</small>
+    </div>
+  </div>
+
+  <div id="chat-log" class="chat-body">
+    {% for msg in messages %}
+      <div class="chat-message {% if msg.sender == request.user %}sent{% else %}received{% endif %}">
+        {{ msg.message|linebreaksbr }}
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="chat-input">
+    <input id="chat-message-input" type="text" placeholder="Type a message...">
+    <button id="chat-send">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#0084ff" viewBox="0 0 24 24">
+        <path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<script>
+  const chatSocket = new WebSocket(
+    (window.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.location.host + '/ws/chat/{{ other_user.username }}/'
+  );
+
+  chatSocket.onmessage = function(e) {
+    const data = JSON.parse(e.data);
+    const currentUser = "{{ request.user.username }}";
+    const isSelf = data.user === currentUser;
+
+    const messageDiv = document.createElement('div');
+    messageDiv.classList.add('chat-message', isSelf ? 'sent' : 'received');
+    messageDiv.innerHTML = data.message;
+
+    const chatLog = document.querySelector('#chat-log');
+    chatLog.appendChild(messageDiv);
+    chatLog.scrollTop = chatLog.scrollHeight;
+  };
+
+  document.querySelector('#chat-send').onclick = function() {
+    const input = document.querySelector('#chat-message-input');
+    const message = input.value.trim();
+    if (message !== '') {
+      chatSocket.send(JSON.stringify({ 'message': message }));
+      input.value = '';
+    }
+  };
+</script>
+{% endblock content %}

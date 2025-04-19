@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    "daphne",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -42,6 +43,7 @@ INSTALLED_APPS = [
     "notification",
     "leave",
     "django_crontab",
+    "chat",
 ]
 
 MIDDLEWARE = [
@@ -52,6 +54,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "chat.middleware.OnlineNowMiddleware",
 ]
 
 ROOT_URLCONF = "ETMS.urls"
@@ -75,6 +78,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "ETMS.wsgi.application"
 
+ASGI_APPLICATION = "ETMS.asgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
@@ -148,14 +152,15 @@ EMAIL_USE_TLS = True
 CRONJOBS = [
     ("42 19 * * *", "task.cron.tasks.send_task_notifications"),  # Runs daily at 9 AM
 ]
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [("localhost", 6379)],
-        },
-    },
-}
+# CHANNEL_LAYERS = {
+#     "default": {
+#         "BACKEND": "channels_redis.core.RedisChannelLayer",
+#         "CONFIG": {
+#             "hosts": [("localhost", 6379)],
+#         },
+#     },
+# }
+CHANNEL_LAYERS = {"default": {"BACKEND": "channels.layers.InMemoryChannelLayer"}}
 print(CHANNEL_LAYERS, "CHANNEL_LAYERS")
 
 CELERY_TIMEZONE = TIME_ZONE
