@@ -88,7 +88,7 @@
     {% endif %}
     <div>
       <strong>{{ other_user.username }}</strong><br>
-      <small class="text-light">Online</small>
+      <small class="text-light">{% if is_online %}Online{% else %}Offline{% endif %}</small>
     </div>
   </div>
 
