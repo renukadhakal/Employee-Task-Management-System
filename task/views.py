@@ -16,12 +16,12 @@ from django.db.models import Count, Sum, F, ExpressionWrapper, fields
 from leave.models import LeaveRequest, LeaveType
 from django.http import HttpResponse
 import csv
-from django.core.serializers.json import DjangoJSONEncoder
 from django.utils import timezone
 from django.db.models.functions import TruncMonth
 from collections import OrderedDict
 from dateutil.relativedelta import relativedelta
 from django.contrib import messages
+from datetime import timedelta
 
 
 class DateTimeEncoder(json.JSONEncoder):
@@ -223,11 +223,20 @@ def time_log_list(request):
 def holiday_list(request):
     holidays = Holiday.objects.all()
     form = HolidayForm()
+
     if request.method == "POST":
         form = HolidayForm(request.POST)
         if form.is_valid():
-            form.save()
+            title = form.cleaned_data["title"]
+            start_date = form.cleaned_data["start_date"]
+            end_date = form.cleaned_data["end_date"]
+            current_date = start_date
+            while current_date <= end_date:
+                Holiday.objects.create(title=title, date=current_date)
+                current_date += timedelta(days=1)
+
             return redirect("task:holiday_list")
+
     return render(
         request, "holiday/holiday_list.html", {"holidays": holidays, "form": form}
     )
@@ -256,16 +265,19 @@ def holiday_delete(request, holiday_id):
 
 @login_required(login_url="/login")
 def holiday_create(request):
+    form = HolidayForm()
     if request.method == "POST":
-        titles = request.POST.getlist("title")
-        dates = request.POST.getlist("date")
-        for title, date in zip(titles, dates):
-            if title and date:
-                Holiday.objects.create(title=title, date=date)
-        messages.success(request, "Holidays created successfully.")
-        return redirect("task:holiday_list")
-
-    return render(request, "holiday/holiday_create.html")
+        form = HolidayForm(request.POST)
+        if form.is_valid():
+            title = form.cleaned_data["title"]
+            start_date = form.cleaned_data["start_date"]
+            end_date = form.cleaned_data["end_date"]
+            current_date = start_date
+            while current_date <= end_date:
+                Holiday.objects.create(title=title, date=current_date)
+                current_date += timedelta(days=1)
+            return redirect("task:holiday_list")
+    return render(request, "holiday/holiday_create.html", {"form": form})
 
 
 @login_required(login_url="/login")

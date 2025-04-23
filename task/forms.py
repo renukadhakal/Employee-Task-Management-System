@@ -103,12 +103,14 @@ class HolidayForm(forms.ModelForm):
             field.widget.attrs.update({"class": "form-control"})
 
 
-class HolidayForm(forms.ModelForm):
-    date = forms.DateField(widget=forms.DateInput(attrs={"type": "date"}), label="Date")
-
-    class Meta:
-        model = Holiday
-        fields = ["date", "title"]
+class HolidayForm(forms.Form):
+    title = forms.CharField(max_length=255, label="Title")
+    start_date = forms.DateField(
+        widget=forms.DateInput(attrs={"type": "date"}), label="Start Date"
+    )
+    end_date = forms.DateField(
+        widget=forms.DateInput(attrs={"type": "date"}), label="End Date"
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
