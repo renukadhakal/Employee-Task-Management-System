@@ -78,13 +78,14 @@ class UserCreationForm(UserCreationForm):
         if commit:
             user.save()  # Commit to DB
         return user
-    
+
+
 class EmployeeTransferForm(forms.Form):
-        employee = forms.ModelChoiceField(
+    employee = forms.ModelChoiceField(
         queryset=User.objects.filter(role=User.Role_Type.EMPLOYEE),
         label="Select Employee",
     )
-        new_manager = forms.ModelChoiceField(
+    new_manager = forms.ModelChoiceField(
         queryset=User.objects.filter(role=User.Role_Type.MANAGER),
         label="Select New Manager",
     )
@@ -119,3 +120,22 @@ class CustomPasswordChangeForm(PasswordChangeForm):
             attrs={"class": "form-control", "placeholder": "Confirm new password"}
         ),
     )
+
+
+class ForgetpasswordForm(forms.Form):
+    email = forms.EmailField(label="Email", max_length=254)
+
+
+class OTPVerifivationForm(forms.Form):
+    otp = forms.CharField(label="OTP", max_length=6)
+
+
+class SetNewPasswordForm(forms.Form):
+    new_password = forms.CharField(widget=forms.PasswordInput)
+    confirm_password = forms.CharField(widget=forms.PasswordInput)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if cleaned_data.get("new_password") != cleaned_data.get("confirm_password"):
+            raise forms.ValidationError("Passwords do not match. ")
+        return cleaned_data

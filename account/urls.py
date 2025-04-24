@@ -15,6 +15,9 @@ from .views import (
     UserUpdateView,
     transfer_employee,
     get_user_profile,
+    forget_password_view,
+    set_new_password_view,
+    verify_otp_view,
 )
 
 app_name = "account"
@@ -49,4 +52,7 @@ urlpatterns = [
     path("change_password", change_password, name="change_password"),
     path("transfer-employee/", transfer_employee, name="transfer_employee"),
     path("profile/<int:pk>/", get_user_profile, name="user-profile"),
+    path("forgot-password/", forget_password_view, name="forgot_password"),
+    path("verify-otp/", verify_otp_view, name="verify_otp"),
+    path("set-new-password/", set_new_password_view, name="set_new_password"),
 ]

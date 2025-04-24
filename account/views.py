@@ -9,6 +9,9 @@ from .forms import (
     UserUpdateForm,
     CustomPasswordChangeForm,
     EmployeeTransferForm,
+    ForgetpasswordForm,
+    OTPVerifivationForm,
+    SetNewPasswordForm,
 )
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import User
@@ -48,7 +51,6 @@ def userLogin(request):
 @login_required(login_url="/login")
 def index(request):
     return redirect("task:dashboard")
-    
 
 
 def userLogout(request):
@@ -289,3 +291,78 @@ def get_user_profile(request, pk):
     }
 
     return render(request, "account/user_profile.html", context)
+
+
+import random
+from ETMS.settings import EMAIL_HOST_USER
+from django.core.mail import send_mail
+from django.utils import timezone
+
+
+def generate_email_otp():
+    return random.randint(100000, 999999)
+
+
+def forget_password_view(request):
+    if request.method == "POST":
+        form = ForgetpasswordForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data["email"]
+            try:
+                user = User.objects.get(email=email)
+                otp = generate_email_otp()
+                user.email_otp = otp
+                user.save()
+                send_mail(
+                    "Your OTP Code", f"Your OTP is {otp}", EMAIL_HOST_USER, [email]
+                )
+                request.session["reset_email"] = email
+                messages.success(request, "OTP has been sent to your email.")
+                return redirect("account:verify_otp")
+            except User.DoesNotExist:
+                messages.error(request, "No account found with this email.")
+    else:
+        form = ForgetpasswordForm()
+
+    return render(request, "account/forgot_password.html", {"form": form})
+
+
+def verify_otp_view(request):
+    email = request.session.get("reset_email")
+    if not email:
+        return redirect("forgot_password")
+
+    user = get_object_or_404(User, email=email)
+
+    if request.method == "POST":
+        form = OTPVerifivationForm(request.POST)
+        if form.is_valid():
+            otp = form.cleaned_data["otp"]
+            if user.email_otp == int(otp):
+                return redirect("account:set_new_password")
+            else:
+                messages.error(request, "Invalid or expired OTP.")
+    else:
+        form = OTPVerifivationForm()
+    return render(request, "account/verify_otp.html", {"form": form})
+
+
+def set_new_password_view(request):
+    email = request.session.get("reset_email")
+    if not email:
+        return redirect("forgot_password")
+
+    user = get_object_or_404(User, email=email)
+
+    if request.method == "POST":
+        form = SetNewPasswordForm(request.POST)
+        if form.is_valid():
+            password = form.cleaned_data["new_password"]
+            user.set_password(password)
+            user.email_otp = 0
+            user.save()
+            messages.success(request, "Password changed successfully. Please login.")
+            return redirect("account:login")
+    else:
+        form = SetNewPasswordForm()
+    return render(request, "account/set_new_password.html", {"form": form})

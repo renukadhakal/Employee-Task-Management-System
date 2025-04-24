@@ -33,3 +33,4 @@ class User(AbstractUser):
         blank=True,
         related_name="user_report_to",
     )
+    email_otp = models.PositiveIntegerField(default=0)
