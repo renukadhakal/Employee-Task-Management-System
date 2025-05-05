@@ -67,6 +67,11 @@
                         <h5 class="text-center">Monthly Time Log (Hours)</h5>
                         <canvas id="timeLogChart" height="100"></canvas>
                     </div>
+
+                    <div class="mt-5">
+                        <h5 class="text-center">Current Workload Summary</h5>
+                        <canvas id="workloadChart" height="100"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
@@ -180,6 +185,39 @@
             }
         }
     });
+</script>
+
+<script>
+    // Workload Chart
+const workloadLabels = {{ workload_labels|safe }};
+const workloadValues = {{ workload_values|safe }};
+
+const workloadCtx = document.getElementById('workloadChart').getContext('2d');
+new Chart(workloadCtx, {
+    type: 'bar',
+    data: {
+        labels: workloadLabels,
+        datasets: [{
+            label: 'Task Count',
+            data: workloadValues,
+            backgroundColor: [
+                'rgba(54, 162, 235, 0.7)',
+                'rgba(255, 206, 86, 0.7)',
+                'rgba(255, 99, 132, 0.7)'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true,
+                title: { display: true, text: "Task Count" }
+            }
+        }
+    }
+});
+
 </script>
 
 <script>

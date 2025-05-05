@@ -20,8 +20,10 @@ from .services.send_registration_mail import send_registration_email
 from task.models import Task
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
-from django.db.models import Count, Sum, F, ExpressionWrapper, fields
+from django.db.models import Count, Sum, F, ExpressionWrapper, fields, Q
 from django.db.models.functions import TruncMonth
+from django.utils.timezone import now
+
 import json
 from task.models import Task, TimeLog
 from leave.models import LeaveRequest
@@ -289,6 +291,27 @@ def get_user_profile(request, pk):
         "start_date": json.dumps(start_date.strftime("%Y-%m-%d")),
         "end_date": json.dumps(end_date.strftime("%Y-%m-%d")),
     }
+
+    workload_summary = Task.objects.filter(
+        assigned_to=user, status__in=["PENDING", "IN_PROGRESS", "ON_HOLD"]
+    ).aggregate(
+        total_tasks=Count("id"),
+        high_priority=Count("id", filter=Q(priority="HIGH")),
+        overdue=Count("id", filter=Q(due_date__lt=now().date())),
+    )
+
+    context.update(
+        {
+            "workload_labels": json.dumps(["Total Tasks", "High Priority", "Overdue"]),
+            "workload_values": json.dumps(
+                [
+                    workload_summary["total_tasks"] or 0,
+                    workload_summary["high_priority"] or 0,
+                    workload_summary["overdue"] or 0,
+                ]
+            ),
+        }
+    )
 
     return render(request, "account/user_profile.html", context)
 
