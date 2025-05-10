@@ -1,0 +1,159 @@
+[
+  
+  {
+    "question": "What should I do if I forget my password?",
+    "answer": "Click on 'Forgot Password' on the login page to reset it via email."
+  },
+  {
+    "question": "Where can I see my assigned tasks?",
+    "answer": "Click on 'My Task' from the sidebar to view your assigned tasks."
+  },
+  {
+    "question": "How do I mark a task as complete?",
+    "answer": "Open 'My Task', then click the checkbox or 'Complete' button beside the task."
+  },
+  {
+    "question": "Can I see the task deadline?",
+    "answer": "Yes, each task listed in 'My Task' displays its deadline."
+  },
+  {
+    "question": "How do I view the calendar?",
+    "answer": "Click on 'Calendar' from the sidebar to see upcoming holidays and tasks."
+  },
+  {
+    "question": "What is the use of the 'Holiday' section?",
+    "answer": "The 'Holiday' section shows all public holidays approved by admin or manager."
+  },
+  {
+    "question": "How do I request a leave?",
+    "answer": "Go to 'Leave Request', fill in the details, and submit your leave application."
+  },
+  {
+    "question": "Can I cancel a leave request?",
+    "answer": "You can cancel a pending leave request from the 'Leave Request' page."
+  },
+  {
+    "question": "How do I know if my leave is approved?",
+    "answer": "You will receive a notification or can check the status in 'Leave Request'."
+  },
+  {
+    "question": "How do I log my working hours?",
+    "answer": "Use the 'Time Log' section to manually enter your work start and end times."
+  },
+  {
+    "question": "Can I see my past time logs?",
+    "answer": "Yes, previous time logs are visible in the 'Time Log' history table."
+  },
+  {
+    "question": "Where can I chat with the manager or team?",
+    "answer": "Use the 'Chat' section to send and receive messages with team members."
+  },
+  {
+    "question": "Is there a way to update my profile information?",
+    "answer": "Go to 'Setting' to change your name, email, or password."
+  },
+  {
+    "question": "How do I logout of the system?",
+    "answer": "Click 'Logout' from the sidebar to safely exit your account."
+  },
+  {
+    "question": "Can I upload files related to a task?",
+    "answer": "Yes, file upload is available when viewing or updating a task in 'My Task'."
+  },
+  {
+    "question": "How do I view holiday details?",
+    "answer": "Open 'Holiday' and click on any listed holiday to see its description."
+  },
+  {
+    "question": "Will I get notified of task updates?",
+    "answer": "Yes, the system sends notifications for any updates or new assignments."
+  },
+  {
+    "question": "How do I check which manager assigned the task?",
+    "answer": "Task details in 'My Task' include the assigning manager's name."
+  },
+  {
+    "question": "What happens if I miss a deadline?",
+    "answer": "The manager will be notified, and the task will be flagged as overdue."
+  },
+  {
+    "question": "How can I report a bug in the system?",
+    "answer": "You can message your manager through 'Chat' and report the issue."
+  },
+  {
+    "question": "Can I filter tasks by status?",
+    "answer": "Yes, you can filter tasks as 'Pending', 'In Progress', or 'Completed' in 'My Task'."
+  },
+  {
+    "question": "Can I sort tasks by priority?",
+    "answer": "Yes, use the priority dropdown filter in the 'My Task' section."
+  },
+  {
+    "question": "How do I receive chat messages?",
+    "answer": "You will get real-time updates in 'Chat' whenever someone sends a message."
+  },
+  {
+    "question": "Can I search for old messages in Chat?",
+    "answer": "Yes, use the search bar in 'Chat' to look for specific keywords."
+  },
+  {
+    "question": "Where can I see my task categories?",
+    "answer": "Your task categories are automatically listed under each task in 'My Task'."
+  },
+  {
+    "question": "How do I know my task priority?",
+    "answer": "Each task card displays a label like 'High', 'Medium', or 'Low'."
+  },
+  {
+    "question": "How often is the dashboard updated?",
+    "answer": "The dashboard updates in real time as you interact with tasks or logs."
+  },
+  {
+    "question": "Can I set reminders for tasks?",
+    "answer": "Currently, task reminders are sent automatically via system notifications."
+  },
+  {
+    "question": "Is my data secure?",
+    "answer": "Yes, your data is encrypted and accessible only with proper login credentials."
+  },
+  {
+    "question": "Can I access the platform from mobile?",
+    "answer": "Yes, the system is mobile-responsive for use on phones or tablets."
+  },
+  {
+    "question": "Will I lose unsaved task data if I log out?",
+    "answer": "Yes, always click 'Save' before logging out or navigating away."
+  },
+  {
+    "question": "Can I download my time log?",
+    "answer": "Yes, the 'Time Log' section provides a download option for CSV or PDF."
+  },
+  {
+    "question": "What is the purpose of the calendar?",
+    "answer": "The calendar shows holidays, task deadlines, and approved leaves."
+  },
+  {
+    "question": "Can I view tasks assigned to me last month?",
+    "answer": "Yes, apply the date filter in 'My Task' to view tasks from past dates."
+  },
+  {
+    "question": "What does the dashboard show?",
+    "answer": "The dashboard shows summary of your tasks, time logs, and leaves."
+  },
+  {
+    "question": "How do I know if my message is seen in chat?",
+    "answer": "Seen status is shown below your message when the receiver views it."
+  },
+  {
+    "question": "Can I edit my submitted leave request?",
+    "answer": "No, but you can cancel it and submit a new one with updated details."
+  },
+  {
+    "question": "What does the setting page let me do?",
+    "answer": "You can change your password and personal details from 'Setting'."
+  },
+  {
+    "question": "Will I be notified if there's a holiday update?",
+    "answer": "Yes, you will get a notification in the system or in chat."
+  }
+]

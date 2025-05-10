@@ -6,4 +6,5 @@ app_name = "chat"
 urlpatterns = [
     path("chat/user/list/", views.user_list, name="chat_user_list"),
     path("chat/user/<str:username>/", views.chat_view, name="chat_user"),
+    path("chatbot/", views.chatbot_view, name="chatbot_view"),
 ]

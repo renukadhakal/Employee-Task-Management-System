@@ -586,6 +586,12 @@
                 </a>
               </li>
               <li class="nav-item">
+                <a href="{% url 'chat:chatbot_view' %}" class="nav-link align-middle px-0">
+                  <i class="fs-4 bi-chat-left-text"></i>
+                  <span class="ms-1 d-none d-sm-inline">Chatbot</span>
+                </a>
+              </li>
+              <li class="nav-item">
                 <a href="{% url 'account:user-update' request.user.id %}" class="nav-link align-middle px-0">
                   <i class="fs-4 bi-gear"></i>
                   <span class="ms-1 d-none d-sm-inline">Setting</span>
