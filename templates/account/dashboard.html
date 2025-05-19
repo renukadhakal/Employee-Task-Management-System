@@ -85,7 +85,7 @@
     </div>
 
     <div class="col-md-3 text-end">
-      <button type="submit" class="btn btn-primary px-4">Filter</button>
+      <button type="submit" class="btn btn-info px-4">Filter</button>
     </div>
   </form>
 
@@ -94,7 +94,7 @@
     <!-- Leave Chart Column -->
     <div class="col-md-6 mb-4">
       <div class="card shadow-sm border-0">
-        <div class="card-header text-white fw-semibold" style="background-color: #00b7aa;">
+        <div class="card-header text-white fw-semibold" style="background:  linear-gradient(135deg,rgb(85, 123, 147) 0%,rgb(138, 172, 206) 100%);">
           Leave Summary
         </div>
         <div class="card-body">
@@ -106,7 +106,7 @@
     <!-- Time Log Chart Column -->
     <div class="col-md-6 mb-4">
       <div class="card shadow-sm border-0">
-        <div class="card-header text-white fw-semibold" style="background-color: #00b7aa;">
+        <div class="card-header text-white fw-semibold" style="background: linear-gradient(135deg,rgb(85, 123, 147) 0%,rgb(138, 172, 206) 100%);">
           Time Log Summary
         </div>
         <div class="card-body">
@@ -156,13 +156,13 @@
         {
           label: "Work Hours",
           data: {{ work_hours|safe }},
-          backgroundColor: "#36A2EB",
+          backgroundColor: "#A0BFE0",
           stack: "timelog"
         },
         {
           label: "Holiday Hours",
           data: {{ holiday_hours|safe }},
-          backgroundColor: "rgba(255, 99, 132, 0.8)",
+          backgroundColor: "rgba(186, 137, 202, 0.8)",
           stack: "timelog"
         }
       ]

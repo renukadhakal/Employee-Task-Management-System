@@ -8,6 +8,7 @@ from .forms import (
     SubTaskStatusForm,
     HolidayForm,
     CategoryForm,
+    HolidayUpdateForm,
 )
 from account.models import User
 import json
@@ -104,7 +105,7 @@ def manager_list_tasks(request):
 
 @login_required(login_url="/login")
 def delete_task(request, task_id):
-    task = get_object_or_404(Task, id=task_id, created_by=request.user)
+    task = get_object_or_404(Task, id=task_id)
 
     task.delete()
 
@@ -142,7 +143,7 @@ def update_task_status(request, task_id):
                     log.start_time = timezone.now()
                     log.save()
                 if task.status == "COMPLETED":
-                    log = TimeLog.objects.get(user=request.user, task=task)
+                    log = TimeLog.objects.filter(user=request.user, task=task).first()
                     log.end_time = timezone.now()
                     log.save()
             return redirect("task:user_task_list")
@@ -245,9 +246,9 @@ def holiday_list(request):
 @login_required(login_url="/login")
 def holiday_edit(request, holiday_id):
     holiday = get_object_or_404(Holiday, id=holiday_id)
-    form = HolidayForm(instance=holiday)
+    form = HolidayUpdateForm(instance=holiday)
     if request.method == "POST":
-        form = HolidayForm(request.POST, instance=holiday)
+        form = HolidayUpdateForm(request.POST, instance=holiday)
         if form.is_valid():
             form.save()
             return redirect("task:holiday_list")
@@ -382,11 +383,11 @@ def dashboard(request):
     leave_datasets = []
 
     colors = {
-        "sick": "#FF6384",
-        "emergency": "#FF9F40",
-        "vacation": "#FFCD56",
-        "unpaid": "#4BC0C0",
-        "other": "#36A2EB",
+        "sick": " #A6B1E1",
+        "emergency": " #F5F3C1",
+        "vacation": " #37B7C3",
+        "unpaid": " #E8C5E5",
+        "other": " #B9EDDD",
     }
 
     for leave_type in LeaveType.objects.values_list("leave_type", flat=True):

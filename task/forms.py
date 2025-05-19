@@ -118,6 +118,23 @@ class HolidayForm(forms.Form):
             field.widget.attrs.update({"class": "form-control"})
 
 
+class HolidayUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Holiday
+        fields = [
+            "title",
+            "date",
+        ]
+        widgets = {
+            "date": forms.DateInput(attrs={"type": "date"}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.update({"class": "form-control"})
+
+
 class CategoryForm(forms.ModelForm):
     class Meta:
         model = Category

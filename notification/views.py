@@ -42,7 +42,7 @@ def notification_create(request):
         if form.is_valid():
             form.save()
             messages.success(request, "Notification created successfully!")
-            return redirect("notification_list")
+            return redirect("notification:notification_list")
     else:
         form = NotificationForm()
     return render(request, "notifications/form.html", {"form": form})
@@ -55,7 +55,7 @@ def notification_update(request, pk):
         if form.is_valid():
             form.save()
             messages.success(request, "Notification updated successfully!")
-            return redirect("notification_list")
+            return redirect("notification:notification_list")
     else:
         form = NotificationForm(instance=notification)
     return render(request, "notifications/form.html", {"form": form})
@@ -66,7 +66,7 @@ def notification_delete(request, pk):
     if request.method == "POST":
         notification.delete()
         messages.success(request, "Notification deleted successfully!")
-        return redirect("notification_list")
+        return redirect("notification:notification_list")
     return render(
         request, "notifications/confirm_delete.html", {"notification": notification}
     )
