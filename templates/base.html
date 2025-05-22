@@ -22,7 +22,7 @@
       }
       /* Static Sidebar (for md and larger) */
       .sidebar {
-        background: linear-gradient(135deg,rgb(85, 123, 147) 0%,rgb(138, 172, 206) 100%); 
+        background: linear-gradient(135deg,rgb(73, 119, 149) 0%,rgb(102, 130, 159) 100%); 
         color: white;
         min-height: 100vh;
       }
@@ -36,7 +36,7 @@
       }
       .sidebar a:hover {
         color: #fff;
-        background-color: rgb(68, 115, 162);
+        background-color: rgb(74, 108, 143);
         border: 4px solid #fff;
         border-radius: 5px;
       }
@@ -61,7 +61,7 @@
     <header class="bg-primary-subtle">
       <nav
         class="navbar navbar-expand-lg bg-primary-subtle"
-        style="background: linear-gradient(135deg,rgb(95, 132, 154) 0%,rgb(184, 202, 220) 100%) "
+        style="background: linear-gradient(135deg,rgb(85, 131, 157) 0%,rgb(147, 173, 199) 100%) "
       >
         <div class="container-fluid">
           <a class="navbar-brand fw-bold fs-4 text-white" href="{% url 'account:home' %}"
@@ -650,7 +650,7 @@
                   <p>{{ notification.message }}</p>
                 </div>
                 {% if not notification.is_read %}
-                <button class="btn btn-sm btn-primary mark-read-btn" data-id="{{ notification.id }}">
+                <button class="btn btn-sm btn-info mark-read-btn" data-id="{{ notification.id }}">
                   Mark as Read
                 </button>
                 {% endif %}

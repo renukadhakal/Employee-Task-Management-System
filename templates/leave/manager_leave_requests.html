@@ -1,24 +1,27 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2 class="mb-0">Leave Requests of Your Employees</h2>
-        
+    <div class="d-flex justify-content-between align-items-center mb-4 mt-4">
+        <div class="flex-grow-1 text-center">
+            <h2 class="mb-4"><b>Leave requests of your employees</b></h2>
+        </div>
     </div>
+
+
 
     {% if leave_requests %}
         <div class="table-responsive">
             <table class="table table-hover table-bordered shadow-sm">
                 <thead class="table-dark text-center">
                     <tr>
-                        <th>Employee</th>
-                        <th>Reason</th>
-                        <th>Leave type</th>
-                        <th>Start Date</th>
-                        <th>End Date</th>
-                        <th>Applied On</th>
-                        <th>Status</th>
-                        <th>Action</th>
+                        <th style="background: linear-gradient(135deg,rgb(85, 123, 147) 0%,rgb(138, 172, 206) 100%);">Employee</th>
+                        <th style="background: linear-gradient(135deg,rgb(85, 123, 147) 0%,rgb(138, 172, 206) 100%);">Reason</th>
+                        <th style="background: linear-gradient(135deg,rgb(85, 123, 147) 0%,rgb(138, 172, 206) 100%);">Leave type</th>
+                        <th style="background: linear-gradient(135deg,rgb(85, 123, 147) 0%,rgb(138, 172, 206) 100%);">Start Date</th>
+                        <th style="background: linear-gradient(135deg,rgb(85, 123, 147) 0%,rgb(138, 172, 206) 100%);">End Date</th>
+                        <th style="background: linear-gradient(135deg,rgb(85, 123, 147) 0%,rgb(138, 172, 206) 100%);">Applied On</th>
+                        <th style="background: linear-gradient(135deg,rgb(85, 123, 147) 0%,rgb(138, 172, 206) 100%);">Status</th>
+                        <th style="background: linear-gradient(135deg,rgb(85, 123, 147) 0%,rgb(138, 172, 206) 100%);">Action</th>
                     </tr>
                 </thead>
                 <tbody class="text-center align-middle">

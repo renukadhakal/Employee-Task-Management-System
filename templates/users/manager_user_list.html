@@ -1,20 +1,24 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <h2>Employee List</h2>
-  <a href="{% url 'account:manager-user-add' %}" class="btn btn-success">+ Add Employee</a>
+<div class="container">
+<div class="d-flex justify-content-between align-items-center mb-5 mt-4">
+  <div class="flex-grow-1 text-center">
+    <h2 class="m-0"> <b>Employee List </b> </h2>
+  </div>
+  <a href="{% url 'account:manager-user-add' %}" class="btn btn-info">+ Add Employee</a>
 </div>
+
 
 <div class="table-responsive">
   <table class="table table-bordered table-hover align-middle text-center">
-    <thead class="table-dark">
+    <thead class=" " style="background: linear-gradient(135deg,rgb(85, 123, 147) 0%,rgb(138, 172, 206) 100%);" >
       <tr>
-        <th scope="col">ID</th>
-        <th scope="col">First Name</th>
-        <th scope="col">Last Name</th>
-        <th scope="col">Username</th>
-        <th scope="col">Role</th>
-        <th scope="col" colspan="3">Actions</th>
+        <th scope="col" style="background: linear-gradient(135deg,rgb(85, 123, 147) 0%,rgb(138, 172, 206) 100%);" >ID</th>
+        <th scope="col" style="background: linear-gradient(135deg,rgb(85, 123, 147) 0%,rgb(138, 172, 206) 100%);">First Name</th>
+        <th scope="col" style="background: linear-gradient(135deg,rgb(85, 123, 147) 0%,rgb(138, 172, 206) 100%);">Last Name</th>
+        <th scope="col" style="background: linear-gradient(135deg,rgb(85, 123, 147) 0%,rgb(138, 172, 206) 100%);">Username</th>
+        <th scope="col" style="background: linear-gradient(135deg,rgb(85, 123, 147) 0%,rgb(138, 172, 206) 100%);">Role</th>
+        <th scope="col" style="background: linear-gradient(135deg,rgb(85, 123, 147) 0%,rgb(138, 172, 206) 100%);" colspan="3">Actions</th>
       </tr>
     </thead>
     <tbody>
@@ -38,5 +42,6 @@
       {% endfor %}
     </tbody>
   </table>
+</div>
 </div>
 {% endblock content %}

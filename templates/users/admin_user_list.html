@@ -1,22 +1,26 @@
 {% extends 'base.html' %}
 {% block content %}
-
-<div class="d-flex justify-content-between align-items-center mb-4">
-  <h2>User Management</h2>
-  <a href="{% url 'account:admin-user-add' %}" class="btn btn-success">+ Add User</a>
+<div class="container ">
+  
+<div class="d-flex justify-content-between align-items-center mb-4 mt-4 ">
+  <div class="flex-grow-1 text-center">
+    <h2 class="mb-4"><b>User Management</b></h2>
+  </div>
+  <a href="{% url 'account:admin-user-add' %}" class="btn btn-info">+ Add User</a>
 </div>
+
 
 <div class="table-responsive">
   <table class="table table-bordered table-hover align-middle text-center">
-    <thead class="table-dark">
+    <thead class=" " style="background: linear-gradient(135deg,rgb(85, 123, 147) 0%,rgb(138, 172, 206) 100%)" >
       <tr>
-        <th scope="col">ID</th>
-        <th scope="col">First Name</th>
-        <th scope="col">Last Name</th>
-        <th scope="col">Username</th>
-        <th scope="col">Role</th>
-        <th scope="col">Assign To</th>
-        <th scope="col" colspan="3">Actions</th>
+        <th style="background: linear-gradient(135deg,rgb(85, 123, 147) 0%,rgb(138, 172, 206) 100%);"scope="col">ID</th>
+        <th style="background: linear-gradient(135deg,rgb(85, 123, 147) 0%,rgb(138, 172, 206) 100%);" scope="col">First Name</th>
+        <th style="background: linear-gradient(135deg,rgb(85, 123, 147) 0%,rgb(138, 172, 206) 100%);" scope="col">Last Name</th>
+        <th style="background: linear-gradient(135deg,rgb(85, 123, 147) 0%,rgb(138, 172, 206) 100%);" scope="col">Username</th>
+        <th style="background: linear-gradient(135deg,rgb(85, 123, 147) 0%,rgb(138, 172, 206) 100%);" scope="col">Role</th>
+        <th style="background: linear-gradient(135deg,rgb(85, 123, 147) 0%,rgb(138, 172, 206) 100%);" scope="col">Assign To</th>
+        <th style="background: linear-gradient(135deg,rgb(85, 123, 147) 0%,rgb(138, 172, 206) 100%);" scope="col" colspan="3">Actions</th>
       </tr>
     </thead>
     <tbody>
@@ -41,6 +45,7 @@
       {% endfor %}
     </tbody>
   </table>
+</div>
 </div>
 
 {% endblock content %}

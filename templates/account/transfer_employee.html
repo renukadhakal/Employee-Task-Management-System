@@ -1,49 +1,45 @@
-{% extends "base.html" %} {% block content %}
-<div
-  class="card shadow-lg p-4"
-  style="max-width: 800px; width: 100%; margin: 50px auto"
->
-  <h2 class="text-center mb-4 text-primary">Transfer Employee</h2>
+{% extends "base.html" %} 
+{% block content %}
+<div class="card shadow-lg p-5 border-0" style="max-width: 900px; margin: 60px auto; background-color: #f9f9f9; border-radius: 15px;">
+  
+  <h2 class="text-center mb-4" style="color: black; font-weight: 700;">Transfer Employee</h2>
 
-  {% if messages %} {% for message in messages %}
-  <div class="alert alert-success text-center" role="alert">{{ message }}</div>
-  {% endfor %} {% endif %}
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-success text-center" role="alert">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
 
-  <form method="post" class="mt-3">
+  <form method="post">
     {% csrf_token %}
-    <div
-      class="mb-3"
-      style="
-        display: flex;
-        flex-direction: column;
-        background-color: rgb(224, 224, 224);
-        padding: 10px;
-        border-radius: 10px;
-      "
-    >
+    <div class="mb-4 p-3 rounded" style="background-color: #e9ecef;">
       {{ form.as_p }}
     </div>
-    <div class="text-center">
-      <button type="submit" class="btn btn-primary">Transfer Employee</button>
-    </div>
+
+    <button type="submit" class="btn btn-info w-100 py-2" style="font-size: 1.1rem;">Transfer Employee</button>
   </form>
 </div>
 
 <style>
-  .card {
-    max-width: 500px;
-    margin: auto;
-    border-radius: 10px;
-    border: none;
+  .form-label {
+    font-weight: 500;
+    margin-bottom: 5px;
   }
 
-  h2 {
-    font-weight: bold;
+  input, select, textarea {
+    border-radius: 8px !important;
+    padding: 10px;
+    border: 1px solid #ced4da;
   }
 
-  button {
-    width: 100%;
-    font-size: 1.1rem;
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.1);
+    border-color: #000;
+  }
+
+  .alert {
+    border-radius: 8px;
   }
 </style>
 {% endblock %}

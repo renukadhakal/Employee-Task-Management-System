@@ -3,27 +3,28 @@
 {% block content %}
 <div class="container mt-4">
     <div class="row justify-content-between align-items-center mb-3">
-        <div class="col-auto">
-            <h2 class="text-primary">Holiday List</h2>
+        <div class="col text-center">
+            <h2 class=" mb-4"> <b>Holiday List</b></h2>
         </div>
         {% if request.user.role == 'admin' %}
         <div class="col-auto">
-            <a href="{% url 'task:create_holiday' %}" class="btn btn-sm btn-success">
+            <a href="{% url 'task:create_holiday' %}" class="btn btn-sm btn-info">
                 <i class="bi bi-plus-circle me-2"></i>Add Holiday
             </a>
         </div>
         {% endif %}
     </div>
+    
 
     <div class="table-responsive">
         <table class="table table-bordered table-hover align-middle text-center">
             <thead class="table-dark">
                 <tr>
-                    <th>#</th>
-                    <th>Title</th>
-                    <th>Date</th>
+                    <th style="background: linear-gradient(135deg,rgb(85, 123, 147) 0%,rgb(138, 172, 206) 100%);">#</th>
+                    <th style="background: linear-gradient(135deg,rgb(85, 123, 147) 0%,rgb(138, 172, 206) 100%);">Title</th>
+                    <th style="background: linear-gradient(135deg,rgb(85, 123, 147) 0%,rgb(138, 172, 206) 100%);">Date</th>
                     {% if request.user.role == 'admin' %}
-                        <th>Actions</th>
+                        <th style="background: linear-gradient(135deg,rgb(85, 123, 147) 0%,rgb(138, 172, 206) 100%);">Actions</th>
                     {% endif %}
                 </tr>
             </thead>

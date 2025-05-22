@@ -2,9 +2,9 @@
 
 {% block content %}
 <div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2 class="mb-0">All Time Logs</h2>
-    </div>
+    
+        <h2 class="text-center mb-4 mt-4"><b>All Time Logs</b></h2>
+   
     
     <form method="get" class="row g-3 align-items-end">
         <div class="col-md-3">
@@ -16,9 +16,9 @@
             <input type="date" class="form-control" id="end_date" name="end_date" value="{{ request.GET.end_date }}">
         </div>
         <div class="col-md-6 d-flex gap-2">
-            <button type="submit" class="btn btn-primary">Filter</button>
+            <button type="submit" class="btn btn-info">Filter</button>
             <button type="button" id="reset" class="btn btn-danger">Reset</button>
-            <button type="button" class="btn btn-info" id="export">Export</button>
+            <button type="button" class="btn btn-primary" id="export">Export</button>
         </div>
     </form>
 
@@ -26,13 +26,13 @@
         <table class="table table-hover table-bordered shadow-sm">
             <thead class="table-dark text-center">
                 <tr>
-                    <th>#</th>
-                    <th>Title</th>
-                    <th>Started Date</th>
-                    <th>End Date</th>
-                    <th>Due Date</th>
-                    <th>Status</th>
-                    <th>Total Hours</th>
+                    <th style="background: linear-gradient(135deg,rgb(85, 123, 147) 0%,rgb(138, 172, 206) 100%);" >#</th>
+                    <th style="background: linear-gradient(135deg,rgb(85, 123, 147) 0%,rgb(138, 172, 206) 100%);">Title</th>
+                    <th style="background: linear-gradient(135deg,rgb(85, 123, 147) 0%,rgb(138, 172, 206) 100%);">Started Date</th>
+                    <th style="background: linear-gradient(135deg,rgb(85, 123, 147) 0%,rgb(138, 172, 206) 100%);">End Date</th>
+                    <th style="background: linear-gradient(135deg,rgb(85, 123, 147) 0%,rgb(138, 172, 206) 100%);">Due Date</th>
+                    <th style="background: linear-gradient(135deg,rgb(85, 123, 147) 0%,rgb(138, 172, 206) 100%);">Status</th>
+                    <th style="background: linear-gradient(135deg,rgb(85, 123, 147) 0%,rgb(138, 172, 206) 100%);">Total Hours</th>
                 </tr>
             </thead>
             <tbody class="text-center align-middle">

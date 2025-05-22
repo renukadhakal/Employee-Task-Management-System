@@ -1,20 +1,23 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
-<div class="container mt-5">
-    <h1 class="mb-4 text-center">Notifications List</h1>
-    <div class="text-end mb-3">
-        <a href="{% url 'notification:notification_create' %}" class="btn btn-success">Create New Notification</a>
-    </div>
+<div class="container ">
+    <div class="d-flex justify-content-between align-items-center mt-4 mb-4">
+        <div class="flex-grow-1 text-center">
+          <h2 class="mb-4"><b>Notifications List</b></h2>
+        </div>
+        <a href="{% url 'notification:notification_create' %}" class="btn btn-info">Create New Notification</a>
+      </div>
+      
     <div class="table-responsive">
         <table class="table table-bordered table-hover">
             <thead class="table-dark">
                 <tr>
-                    <th>Title</th>
-                    <th>Message</th>
-                    <th>User</th>
-                    <th>Read</th>
-                    <th>Actions</th>
+                    <th style="background: linear-gradient(135deg,rgb(85, 123, 147) 0%,rgb(138, 172, 206) 100%);" >Title</th>
+                    <th style="background: linear-gradient(135deg,rgb(85, 123, 147) 0%,rgb(138, 172, 206) 100%);">Message</th>
+                    <th style="background: linear-gradient(135deg,rgb(85, 123, 147) 0%,rgb(138, 172, 206) 100%);">User</th>
+                    <th style="background: linear-gradient(135deg,rgb(85, 123, 147) 0%,rgb(138, 172, 206) 100%);">Read</th>
+                    <th style="background: linear-gradient(135deg,rgb(85, 123, 147) 0%,rgb(138, 172, 206) 100%);">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -25,7 +28,7 @@
                     <td>{{ notification.user }}</td>
                     <td>
                         {% if notification.is_read %}
-                            <span class="badge bg-success">Read</span>
+                            <span class="badge bg-info">Read</span>
                         {% else %}
                             <span class="badge bg-warning text-dark">Unread</span>
                         {% endif %}
