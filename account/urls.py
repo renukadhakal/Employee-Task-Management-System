@@ -33,11 +33,7 @@ urlpatterns = [
         AdminUserUpdateView.as_view(),
         name="admin-user-update",
     ),
-    path(
-        "user-update/<int:pk>/",
-        UserUpdateView.as_view(),
-        name="user-update",
-    ),
+    path("profile/update/", UserUpdateView.as_view(), name="profile-update"),
     path("admin-user-delete/<int:id>/", delete_user_admin, name="admin-user-delete"),
     path("manager-user-list", ManagerUserListView.as_view(), name="manager-user-list"),
     path("manager-user-add", ManagerUserCreateView.as_view(), name="manager-user-add"),

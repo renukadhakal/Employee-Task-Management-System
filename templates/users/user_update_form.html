@@ -5,83 +5,62 @@
         <div class="col-md-10">
             <div class="card shadow-lg border-0">
                 <div class="card-body text-center">
-                    <!-- Profile Picture -->
-                     {% if user.image %}
+
+                    {% if user.image %}
                     <div class="mb-4">
                         <img src="{{ user.image.url }}" alt="Profile Image" class="rounded-circle" style="width: 120px; height: 120px;">
                     </div>
-                    {%endif%}
+                    {% endif %}
 
-                    <!-- Name and Username -->
                     <h3 class="fw-bold">{{ user.first_name }} {{ user.last_name }}</h3>
                     <p class="text-muted">@{{ user.username }}</p>
 
-                    <!-- Profile Details View -->
                     <div id="profile-view" class="row justify-content-center mt-4">
                         <div class="col-md-6">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <span class="fw-bold">Username</span>
-                                <span>{{ user.username }}</span>
+                            <div class="d-flex justify-content-between mb-3">
+                                <span class="fw-bold">Username</span><span>{{ user.username }}</span>
                             </div>
-
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <span class="fw-bold">Email</span>
-                                <span>{{ user.email }}</span>
+                            <div class="d-flex justify-content-between mb-3">
+                                <span class="fw-bold">Email</span><span>{{ user.email }}</span>
                             </div>
-
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <span class="fw-bold">Role</span>
-                                <span>{{ user.role }}</span>
+                            <div class="d-flex justify-content-between mb-3">
+                                <span class="fw-bold">Role</span><span>{{ user.role }}</span>
                             </div>
-
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <span class="fw-bold">First Name</span>
-                                <span>{{ user.first_name }}</span>
+                            <div class="d-flex justify-content-between mb-3">
+                                <span class="fw-bold">First Name</span><span>{{ user.first_name }}</span>
                             </div>
-
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <span class="fw-bold">Last Name</span>
-                                <span>{{ user.last_name }}</span>
+                            <div class="d-flex justify-content-between mb-3">
+                                <span class="fw-bold">Last Name</span><span>{{ user.last_name }}</span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Profile Edit Form (Initially Hidden) -->
+                    <!-- Profile Edit Form -->
                     <div id="profile-edit" class="d-none">
                         <form method="post" enctype="multipart/form-data">
                             {% csrf_token %}
                             <div class="row justify-content-center mt-4">
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="id_username" class="form-label">Username</label>
+                                        <label class="form-label">Username</label>
                                         {{ form.username }}
                                     </div>
-
                                     <div class="mb-3">
-                                        <label for="id_email" class="form-label">Email</label>
+                                        <label class="form-label">Email</label>
                                         {{ form.email }}
                                     </div>
-
-                                    {% comment %} <div class="mb-3">
-                                        <label for="id_address" class="form-label">Address</label>
-                                        {{ form.f }}
-                                    </div> {% endcomment %}
-
                                     <div class="mb-3">
-                                        <label for="id_nickname" class="form-label">First Name</label>
+                                        <label class="form-label">First Name</label>
                                         {{ form.first_name }}
                                     </div>
-
                                     <div class="mb-3">
-                                        <label for="id_dob" class="form-label">Last Name</label>
+                                        <label class="form-label">Last Name</label>
                                         {{ form.last_name }}
                                     </div>
-
                                     <div class="mb-3">
-                                        <label for="id_image" class="form-label">Profile Image</label>
+                                        <label class="form-label">Profile Image</label>
                                         {{ form.image }}
                                     </div>
-
                                     <div class="text-center mt-4">
                                         <button type="submit" class="btn btn-info">Save Changes</button>
                                         <button id="cancel-button" type="button" class="btn btn-secondary">Cancel</button>
@@ -91,10 +70,11 @@
                         </form>
                     </div>
 
-                    <!-- Edit Buttons -->
+                    <!-- Edit Button -->
                     <div class="mt-4">
                         <button id="edit-button" class="btn btn-info me-2">Edit Profile</button>
                     </div>
+
                 </div>
             </div>
         </div>
@@ -102,7 +82,6 @@
 </div>
 
 <script>
-    // Toggle between profile view and edit form
     const editButton = document.getElementById('edit-button');
     const cancelButton = document.getElementById('cancel-button');
     const profileView = document.getElementById('profile-view');

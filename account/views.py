@@ -165,7 +165,11 @@ class UserUpdateView(LoginRequiredMixin, UpdateView):
     form_class = UserUpdateForm
     template_name = "users/user_update_form.html"
     success_url = reverse_lazy("account:home")
+    def get_success_url(self):
+        return reverse_lazy("account:home")  # Change if you want to stay on profile page
 
+    def get_object(self, queryset=None):
+        return self.request.user  # This ensures users only update their own profile
 
 @login_required(login_url="/login")
 def transfer_employee(request):
